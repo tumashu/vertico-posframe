@@ -1,0 +1,26 @@
+#+TITLE: README of vertico-posframe
+
+** What is vertico-posframe
+
+vertico-posframe is an vertico extension, which lets vertico use
+posframe to show its candidate menu.
+
+NOTE: vertico-posframe requires Emacs 26 and do not support mouse
+click.
+
+** How to enable vertico-posframe
+#+BEGIN_EXAMPLE
+(require 'vertico-posframe)
+(vertico-posframe-mode 1)
+#+END_EXAMPLE
+
+** Tips
+*** How to show fringe to vertico-posframe
+#+BEGIN_EXAMPLE
+(setq vertico-posframe-parameters
+      '((left-fringe . 8)
+        (right-fringe . 8)))
+#+END_EXAMPLE
+
+By the way, User can set *any* parameters of vertico-posframe with
+the help of `vertico-posframe-parameters'.
