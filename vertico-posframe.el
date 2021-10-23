@@ -179,19 +179,20 @@ When 0, no border is showed."
               content
               (propertize " " 'face 'vertico-posframe-cursor)
               "\n" (string-join lines)))
-    (apply #'posframe-show
-           vertico-posframe--buffer
-           :font vertico-posframe-font
-           :poshandler vertico-posframe-poshandler
-           :background-color (face-attribute 'vertico-posframe :background nil t)
-           :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
-           :internal-border-width vertico-posframe-border-width
-           :internal-border-color (face-attribute 'vertico-posframe-border :background nil t)
-           :override-parameters vertico-posframe-parameters
-           :refposhandler vertico-posframe-refposhandler
-           :hidehandler #'vertico-posframe-hidehandler
-           :lines-truncate t
-           (funcall vertico-posframe-size-function))))
+    (with-selected-window (next-window)
+      (apply #'posframe-show
+             vertico-posframe--buffer
+             :font vertico-posframe-font
+             :poshandler vertico-posframe-poshandler
+             :background-color (face-attribute 'vertico-posframe :background nil t)
+             :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
+             :internal-border-width vertico-posframe-border-width
+             :internal-border-color (face-attribute 'vertico-posframe-border :background nil t)
+             :override-parameters vertico-posframe-parameters
+             :refposhandler vertico-posframe-refposhandler
+             :hidehandler #'vertico-posframe-hidehandler
+             :lines-truncate t
+             (funcall vertico-posframe-size-function)))))
 
 (defun vertico-posframe--select (_)
   "Ensure that cursor is only shown if minibuffer is selected."
