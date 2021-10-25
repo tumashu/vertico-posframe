@@ -229,8 +229,8 @@ When 0, no border is showed."
   (overlay-put vertico-posframe--overlay 'priority 1000)
   (overlay-put vertico-posframe--overlay 'before-string "\n"))
 
-(defun vertico-posframe--advice (orig &rest args)
-  "Advice function of `vertico--advice'."
+(defun vertico-posframe--advice (orig &rest _args)
+  "Advice for ORIG completion function, receiving ARGS."
   (setq vertico-posframe--last-window (selected-window)))
 
 ;;;###autoload
@@ -241,11 +241,13 @@ When 0, no border is showed."
    (vertico-posframe-mode
     (advice-add #'vertico--display-candidates :override #'vertico-posframe--display)
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
-    (advice-add #'vertico--advice :before #'vertico-posframe--advice))
+    (advice-add #'completing-read-default :before #'vertico-posframe--advice)
+    (advice-add #'completing-read-multiple :before #'vertico-posframe--advice))
    (t
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup)
-    (advice-remove #'vertico--advice #'vertico-posframe--advice)
+    (advice-remove #'completing-read-default #'vertico-posframe--advice)
+    (advice-remove #'completing-read-multiple #'vertico-posframe--advice)
     (posframe-delete vertico-posframe--buffer))))
 
 (provide 'vertico-posframe)
