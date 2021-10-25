@@ -229,7 +229,7 @@ When 0, no border is showed."
   (overlay-put vertico-posframe--overlay 'priority 1000)
   (overlay-put vertico-posframe--overlay 'before-string "\n"))
 
-(defun vertico-posframe--advice (orig &rest _args)
+(defun vertico-posframe--advice (&rest _args)
   "Advice for ORIG completion function, receiving ARGS."
   (setq vertico-posframe--last-window (selected-window)))
 
