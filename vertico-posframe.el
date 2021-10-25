@@ -124,6 +124,8 @@ When 0, no border is showed."
   :group 'vertico-posframe)
 
 (defvar vertico-posframe--buffer " *vertico-posframe--buffer*")
+(defvar vertico-posframe--last-window nil)
+
 (defvar vertico-posframe--overlay)
 
 ;; Fix warn
@@ -179,7 +181,7 @@ When 0, no border is showed."
               content
               (propertize " " 'face 'vertico-posframe-cursor)
               "\n" (string-join lines)))
-    (with-selected-window (next-window)
+    (with-selected-window (vertico-posframe-last-window)
       (apply #'posframe-show
              vertico-posframe--buffer
              :font vertico-posframe-font
@@ -192,7 +194,16 @@ When 0, no border is showed."
              :refposhandler vertico-posframe-refposhandler
              :hidehandler #'vertico-posframe-hidehandler
              :lines-truncate t
-             (funcall vertico-posframe-size-function)))))
+             (funcall vertico-posframe-size-function))
+      (setq vertico-posframe--last-window nil))))
+
+(defun vertico-posframe-last-window ()
+  "Get the last actived window before active minibuffer."
+  (let ((window vertico-posframe--last-window))
+    (or (if (window-live-p window)
+            window
+          (next-window))
+        (selected-window))))
 
 (defun vertico-posframe--select (_)
   "Ensure that cursor is only shown if minibuffer is selected."
@@ -218,6 +229,10 @@ When 0, no border is showed."
   (overlay-put vertico-posframe--overlay 'priority 1000)
   (overlay-put vertico-posframe--overlay 'before-string "\n"))
 
+(defun vertico-posframe--advice (orig &rest args)
+  "Advice function of `vertico--advice'."
+  (setq vertico-posframe--last-window (selected-window)))
+
 ;;;###autoload
 (define-minor-mode vertico-posframe-mode
   "Display Vertico in posframe instead of the minibuffer."
@@ -225,10 +240,12 @@ When 0, no border is showed."
   (cond
    (vertico-posframe-mode
     (advice-add #'vertico--display-candidates :override #'vertico-posframe--display)
-    (advice-add #'vertico--setup :after #'vertico-posframe--setup))
+    (advice-add #'vertico--setup :after #'vertico-posframe--setup)
+    (advice-add #'vertico--advice :before #'vertico-posframe--advice))
    (t
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup)
+    (advice-remove #'vertico--advice #'vertico-posframe--advice)
     (posframe-delete vertico-posframe--buffer))))
 
 (provide 'vertico-posframe)
