@@ -194,8 +194,7 @@ When 0, no border is showed."
              :refposhandler vertico-posframe-refposhandler
              :hidehandler #'vertico-posframe-hidehandler
              :lines-truncate t
-             (funcall vertico-posframe-size-function))
-      (setq vertico-posframe--last-window nil))))
+             (funcall vertico-posframe-size-function)))))
 
 (defun vertico-posframe-last-window ()
   "Get the last actived window before active minibuffer."
