@@ -230,7 +230,8 @@ When 0, no border is showed."
 
 (defun vertico-posframe--advice (&rest _args)
   "Advice for ORIG completion function, receiving ARGS."
-  (setq vertico-posframe--last-window (selected-window)))
+  (unless (minibufferp) ; minibuffer recursive
+    (setq vertico-posframe--last-window (selected-window))))
 
 ;;;###autoload
 (define-minor-mode vertico-posframe-mode
