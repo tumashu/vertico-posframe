@@ -5,7 +5,7 @@
 ;; Author: Feng Shu <tumashu@163.com>
 ;; Maintainer: Feng Shu <tumashu@163.com>
 ;; URL: https://github.com/tumashu/vertico-posframe
-;; Version: 0.3.2
+;; Version: 0.3.3
 ;; Keywords: abbrev, convenience, matching, vertico
 ;; Package-Requires: ((emacs "26.0") (posframe "1.0.0") (vertico "0.13.0"))
 
@@ -187,7 +187,7 @@ Optional argument FRAME ."
       (if input-method
           (posframe-hide vertico-posframe--minibuffer-cover)
         (posframe-show vertico-posframe--minibuffer-cover
-                       :string (make-string 200 ? )
+                       :string (make-string 120 ? )
                        :position '(0 . -1)
                        :lines-truncate t))
       (apply #'posframe-show
