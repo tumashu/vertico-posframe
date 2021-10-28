@@ -221,7 +221,9 @@ Optional argument FRAME ."
   "`post-command-hook' function used by vertico-posframe."
   (while-no-input
     (redisplay)
-    (when (and (minibufferp) (posframe-workable-p))
+    (when (and vertico-posframe-mode
+               (minibufferp)
+               (posframe-workable-p))
       (with-current-buffer (window-buffer (active-minibuffer-window))
         (let* ((count (vertico--format-count))
                (count-length (length count))
