@@ -217,8 +217,6 @@ Optional argument FRAME ."
     (posframe-hide vertico-posframe--buffer)
     (posframe-hide vertico-posframe--minibuffer-cover)))
 
-(add-hook 'post-command-hook #'vertico-posframe-post-command-function)
-
 (defun vertico-posframe-post-command-function ()
   "`post-command-hook' function used by vertico-posframe."
   (while-no-input
@@ -257,12 +255,14 @@ Optional argument FRAME ."
     (advice-add #'vertico--display-candidates :override #'vertico-posframe--display)
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
     (advice-add #'completing-read-default :before #'vertico-posframe--advice)
-    (advice-add #'completing-read-multiple :before #'vertico-posframe--advice))
+    (advice-add #'completing-read-multiple :before #'vertico-posframe--advice)
+    (add-hook 'post-command-hook #'vertico-posframe-post-command-function))
    (t
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup)
     (advice-remove #'completing-read-default #'vertico-posframe--advice)
     (advice-remove #'completing-read-multiple #'vertico-posframe--advice)
+    (remove-hook 'post-command-hook #'vertico-posframe-post-command-function)
     (posframe-delete vertico-posframe--buffer))))
 
 (provide 'vertico-posframe)
