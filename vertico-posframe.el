@@ -186,10 +186,13 @@ Optional argument FRAME ."
       ;; Create a posframe to cover minibuffer.
       (if input-method
           (posframe-hide vertico-posframe--minibuffer-cover)
-        (posframe-show vertico-posframe--minibuffer-cover
-                       :string (make-string 120 ? )
-                       :position '(0 . -1)
-                       :lines-truncate t))
+        (let* ((win (active-minibuffer-window))
+               (x (window-pixel-left win))
+               (y (window-pixel-top win)))
+          (posframe-show vertico-posframe--minibuffer-cover
+                         :string (make-string 120 ? )
+                         :position (cons x y)
+                         :lines-truncate t)))
       (apply #'posframe-show
              vertico-posframe--buffer
              :font vertico-posframe-font
