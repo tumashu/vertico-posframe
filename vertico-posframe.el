@@ -56,12 +56,11 @@
 
 ;;; Code:
 ;; * vertico-posframe's code
-(require 'cl-lib)
 (require 'posframe)
 (require 'vertico)
 
 (defgroup vertico-posframe nil
-  "Using posframe to show vertico"
+  "Using posframe to show vertico."
   :group 'vertico-posframe)
 
 (defcustom vertico-posframe-font nil
@@ -134,7 +133,8 @@ When 0, no border is showed."
 (defvar exwm-workspace-current-index)
 
 (defun vertico-posframe-refposhandler-default (&optional frame)
-  "The default posframe refposhandler used by vertico-posframe."
+  "The default posframe refposhandler used by vertico-posframe.
+Optional argument FRAME ."
   (cond
    ;; EXWM environment
    ((bound-and-true-p exwm--connection)
