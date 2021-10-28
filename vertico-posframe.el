@@ -215,7 +215,12 @@ Optional argument FRAME ."
   "Hide vertico buffer."
   (when (posframe-workable-p)
     (posframe-hide vertico-posframe--buffer)
-    (posframe-hide vertico-posframe--minibuffer-cover)))
+    ;; FIXME: delay 0.1 second to remove minibuffer cover, which can
+    ;; limit minibuffer flicker.
+    (run-with-timer
+     0.1 nil
+     (lambda ()
+       (posframe-hide vertico-posframe--minibuffer-cover)))))
 
 (defun vertico-posframe-post-command-function ()
   "`post-command-hook' function used by vertico-posframe."
