@@ -5,7 +5,7 @@
 ;; Author: Feng Shu <tumashu@163.com>
 ;; Maintainer: Feng Shu <tumashu@163.com>
 ;; URL: https://github.com/tumashu/vertico-posframe
-;; Version: 0.3.1
+;; Version: 0.3.2
 ;; Keywords: abbrev, convenience, matching, vertico
 ;; Package-Requires: ((emacs "26.0") (posframe "1.0.0") (vertico "0.13.0"))
 
@@ -181,14 +181,14 @@ Optional argument FRAME ."
               content
               (propertize " " 'face 'vertico-posframe-cursor)
               "\n" (string-join lines)))
-    ;; Create a posframe to cover minibuffer.
-    (if current-input-method
-        (posframe-hide vertico-posframe--minibuffer-cover)
-      (posframe-show vertico-posframe--minibuffer-cover
-                     :string (make-string 200 ? )
-                     :position '(0 . -1)
-                     :lines-truncate t))
     (with-selected-window (vertico-posframe-last-window)
+      ;; Create a posframe to cover minibuffer.
+      (if current-input-method
+          (posframe-hide vertico-posframe--minibuffer-cover)
+        (posframe-show vertico-posframe--minibuffer-cover
+                       :string (make-string 200 ? )
+                       :position '(0 . -1)
+                       :lines-truncate t))
       (apply #'posframe-show
              vertico-posframe--buffer
              :font vertico-posframe-font
