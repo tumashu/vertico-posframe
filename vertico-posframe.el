@@ -124,6 +124,7 @@ When 0, no border is showed."
 
 (defvar vertico-posframe--buffer " *vertico-posframe--buffer*")
 (defvar vertico-posframe--minibuffer-cover " *vertico-posframe--minibuffer-cover*")
+(defvar vertico-posframe--minibuffer-message " *vertico-posframe--minibuffer-message*")
 (defvar vertico-posframe--last-window nil)
 
 (defvar vertico-posframe--overlay)
@@ -193,19 +194,25 @@ Optional argument FRAME ."
                          :string (make-string 120 ? )
                          :position (cons x y)
                          :lines-truncate t)))
-      (apply #'posframe-show
-             vertico-posframe--buffer
-             :font vertico-posframe-font
-             :poshandler vertico-posframe-poshandler
-             :background-color (face-attribute 'vertico-posframe :background nil t)
-             :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
-             :border-width vertico-posframe-border-width
-             :border-color (face-attribute 'vertico-posframe-border :background nil t)
-             :override-parameters vertico-posframe-parameters
-             :refposhandler vertico-posframe-refposhandler
-             :hidehandler #'vertico-posframe-hidehandler
-             :lines-truncate t
-             (funcall vertico-posframe-size-function)))))
+      (vertico-posframe--show))))
+
+(defun vertico-posframe--show (&optional string)
+  "`posframe-show' of vertico-posframe.
+Show STRING when it is a string."
+  (apply #'posframe-show
+         vertico-posframe--buffer
+         :string string
+         :font vertico-posframe-font
+         :poshandler vertico-posframe-poshandler
+         :background-color (face-attribute 'vertico-posframe :background nil t)
+         :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
+         :border-width vertico-posframe-border-width
+         :border-color (face-attribute 'vertico-posframe-border :background nil t)
+         :override-parameters vertico-posframe-parameters
+         :refposhandler vertico-posframe-refposhandler
+         :hidehandler #'vertico-posframe-hidehandler
+         :lines-truncate t
+         (funcall vertico-posframe-size-function)))
 
 (defun vertico-posframe-last-window ()
   "Get the last actived window before active minibuffer."
@@ -257,18 +264,26 @@ Optional argument FRAME ."
   (unless (minibufferp) ; minibuffer recursive
     (setq vertico-posframe--last-window (selected-window))))
 
+(defun vertico-posframe--minibuffer-message (message &rest _args)
+  "Advice function of `minibuffer-message'"
+  (let* ((count (vertico--format-count))
+         (prompt (buffer-string)))
+    (vertico-posframe--show (concat count prompt message))))
+
 ;;;###autoload
 (define-minor-mode vertico-posframe-mode
   "Display Vertico in posframe instead of the minibuffer."
   :global t
   (cond
    (vertico-posframe-mode
+    (advice-add 'minibuffer-message :before #'vertico-posframe--minibuffer-message)
     (advice-add #'vertico--display-candidates :override #'vertico-posframe--display)
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
     (advice-add #'completing-read-default :before #'vertico-posframe--advice)
     (advice-add #'completing-read-multiple :before #'vertico-posframe--advice)
     (add-hook 'post-command-hook #'vertico-posframe-post-command-function))
    (t
+    (advice-remove 'minibuffer-message #'vertico-posframe--minibuffer-message)
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup)
     (advice-remove #'completing-read-default #'vertico-posframe--advice)
