@@ -126,8 +126,6 @@ When 0, no border is showed."
 (defvar vertico-posframe--minibuffer-cover " *vertico-posframe--minibuffer-cover*")
 (defvar vertico-posframe--last-window nil)
 
-(defvar vertico-posframe--overlay)
-
 ;; Fix warn
 (defvar exwm--connection)
 (defvar exwm-workspace--workareas)
