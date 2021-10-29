@@ -251,22 +251,22 @@ Show STRING when it is a string."
                (minibufferp)
                (posframe-workable-p))
       (with-current-buffer (window-buffer (active-minibuffer-window))
-        (let* ((count (vertico-posframe--format-count))
-               (count-length (length count))
-               (point (point))
-               (prompt (buffer-string)))
-          (remove-text-properties 0 (length prompt) '(read-only nil) prompt)
+        (let* ((point (point))
+               (count (vertico-posframe--format-count))
+               (contents (buffer-string))
+               (n (+ point (length count)))
+               (cursor-face
+                ;; FIXME: make sure background and foreground do
+                ;; not have similar color. ivy-posframe have not
+                ;; this problem, I can not find the reason.
+                (list :foreground (face-attribute 'default :background)
+                      :inherit 'vertico-posframe-cursor)))
+          (remove-text-properties 0 (length contents) '(read-only nil) contents)
           (with-current-buffer (get-buffer-create vertico-posframe--buffer)
             (goto-char (point-min))
             (delete-region (point) (line-beginning-position 2))
-            (insert count prompt "  \n")
-            (add-text-properties
-             (+ point count-length) (+ point count-length 1)
-             `(face (;; FIXME: make sure background and foreground do
-                     ;; not have similar color. ivy-posframe have not
-                     ;; this problem, I can not find the reason.
-                     :foreground ,(face-attribute 'default :background)
-                     :inherit vertico-posframe-cursor)))))))))
+            (insert count contents "  \n")
+            (add-text-properties n (+ n 1) `(face ,cursor-face))))))))
 
 (defun vertico-posframe--setup ()
   "Setup minibuffer overlay, which pushes the minibuffer content down."
