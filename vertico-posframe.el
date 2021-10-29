@@ -273,7 +273,8 @@ Show STRING when it is a string."
 Argument MESSAGE ."
   (let* ((count (vertico--format-count))
          (prompt (buffer-string)))
-    (vertico-posframe--show (concat count prompt message))))
+    (vertico-posframe--show
+     (concat (propertize (concat count prompt) 'face 'minibuffer-prompt) message))))
 
 ;;;###autoload
 (define-minor-mode vertico-posframe-mode
