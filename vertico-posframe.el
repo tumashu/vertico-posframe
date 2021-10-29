@@ -168,7 +168,7 @@ Optional argument FRAME ."
 
 (defun vertico-posframe--display (lines)
   "Display LINES in posframe."
-  (let ((count (vertico--format-count))
+  (let ((count (vertico-posframe--format-count))
         (prompt (minibuffer-prompt))
         (content (minibuffer-contents))
         (show-minibuffer (vertico-posframe--show-minibuffer-p)))
@@ -176,8 +176,7 @@ Optional argument FRAME ."
       (setq-local inhibit-modification-hooks t
                   cursor-in-non-selected-windows 'box)
       (erase-buffer)
-      (insert (propertize (concat count prompt) 'face 'minibuffer-prompt)
-              content
+      (insert count prompt content
               (propertize " " 'face 'vertico-posframe-cursor)
               "\n" (string-join lines)))
     (with-selected-window (vertico-posframe-last-window)
@@ -186,6 +185,10 @@ Optional argument FRAME ."
           (posframe-hide vertico-posframe--minibuffer-cover)
         (vertico-posframe--create-minibuffer-cover))
       (vertico-posframe--show))))
+
+(defun vertico-posframe--format-count ()
+  "Format vertico count."
+  (propertize (or (vertico--format-count) "") 'face 'minibuffer-prompt))
 
 (defun vertico-posframe--show (&optional string)
   "`posframe-show' of vertico-posframe.
@@ -250,7 +253,7 @@ Show STRING when it is a string."
                (minibufferp)
                (posframe-workable-p))
       (with-current-buffer (window-buffer (active-minibuffer-window))
-        (let* ((count (vertico--format-count))
+        (let* ((count (vertico-posframe--format-count))
                (count-length (length count))
                (point (point))
                (prompt (buffer-string)))
@@ -258,7 +261,7 @@ Show STRING when it is a string."
           (with-current-buffer (get-buffer-create vertico-posframe--buffer)
             (goto-char (point-min))
             (delete-region (point) (line-beginning-position 2))
-            (insert (propertize (concat count prompt) 'face 'minibuffer-prompt) "  \n")
+            (insert count prompt "  \n")
             (add-text-properties
              (+ point count-length) (+ point count-length 1)
              '(face vertico-posframe-cursor))))))))
@@ -276,10 +279,9 @@ Show STRING when it is a string."
 (defun vertico-posframe--minibuffer-message (message &rest _args)
   "Advice function of `minibuffer-message'.
 Argument MESSAGE ."
-  (let* ((count (vertico--format-count))
+  (let* ((count (vertico-posframe--format-count))
          (prompt (buffer-string)))
-    (vertico-posframe--show
-     (concat (propertize (concat count prompt) 'face 'minibuffer-prompt) message))))
+    (vertico-posframe--show (concat count prompt message))))
 
 ;;;###autoload
 (define-minor-mode vertico-posframe-mode
