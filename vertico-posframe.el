@@ -171,7 +171,7 @@ Optional argument FRAME ."
   (let ((count (vertico--format-count))
         (prompt (minibuffer-prompt))
         (content (minibuffer-contents))
-        (input-method current-input-method))
+        (show-minibuffer (vertico-posframe--show-minibuffer-p)))
     (with-current-buffer (get-buffer-create vertico-posframe--buffer)
       (setq-local inhibit-modification-hooks t
                   cursor-in-non-selected-windows 'box)
@@ -182,15 +182,9 @@ Optional argument FRAME ."
               "\n" (string-join lines)))
     (with-selected-window (vertico-posframe-last-window)
       ;; Create a posframe to cover minibuffer.
-      (if input-method
+      (if show-minibuffer
           (posframe-hide vertico-posframe--minibuffer-cover)
-        (let* ((win (active-minibuffer-window))
-               (x (window-pixel-left win))
-               (y (window-pixel-top win)))
-          (posframe-show vertico-posframe--minibuffer-cover
-                         :string (make-string 120 ? )
-                         :position (cons x y)
-                         :lines-truncate t)))
+        (vertico-posframe--create-minibuffer-cover))
       (vertico-posframe--show))))
 
 (defun vertico-posframe--show (&optional string)
@@ -210,6 +204,21 @@ Show STRING when it is a string."
          :hidehandler #'vertico-posframe-hidehandler
          :lines-truncate t
          (funcall vertico-posframe-size-function)))
+
+(defun vertico-posframe--create-minibuffer-cover ()
+  "Create minibuffer cover."
+  (let* ((win (active-minibuffer-window))
+         (x (window-pixel-left win))
+         (y (window-pixel-top win)))
+    (posframe-show vertico-posframe--minibuffer-cover
+                   :string (make-string 120 ? )
+                   :position (cons x y)
+                   :lines-truncate t)))
+
+(defun vertico-posframe--show-minibuffer-p ()
+  "Test show minibuffer or not."
+  (or current-input-method
+      (string-match-p "^eval-*" (symbol-name this-command))))
 
 (defun vertico-posframe-last-window ()
   "Get the last actived window before active minibuffer."
@@ -240,8 +249,6 @@ Show STRING when it is a string."
     (when (and vertico-posframe-mode
                (minibufferp)
                (posframe-workable-p))
-      (when (string-match-p "^eval-*" (symbol-name this-command))
-        (posframe-hide vertico-posframe--minibuffer-cover))
       (with-current-buffer (window-buffer (active-minibuffer-window))
         (let* ((count (vertico--format-count))
                (count-length (length count))
