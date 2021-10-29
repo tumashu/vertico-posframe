@@ -217,6 +217,15 @@ Show STRING when it is a string."
                    :lines-truncate t
                    :timeout 3)))
 
+(defun vertico-posframe--hide-minibuffer-cover ()
+  "Hide minibuffer cover."
+  ;; FIXME: delay 0.1 second to remove minibuffer cover, which can
+  ;; limit minibuffer flicker.
+  (run-with-timer
+   0.1 nil
+   (lambda ()
+     (posframe-hide vertico-posframe--minibuffer-cover))))
+
 (defun vertico-posframe--show-minibuffer-p ()
   "Test show minibuffer or not."
   (or current-input-method
@@ -234,12 +243,7 @@ Show STRING when it is a string."
   "Hide vertico buffer."
   (when (posframe-workable-p)
     (posframe-hide vertico-posframe--buffer)
-    ;; FIXME: delay 0.1 second to remove minibuffer cover, which can
-    ;; limit minibuffer flicker.
-    (run-with-timer
-     0.1 nil
-     (lambda ()
-       (posframe-hide vertico-posframe--minibuffer-cover)))))
+    (vertico-posframe--hide-minibuffer-cover)))
 
 (defun vertico-posframe--post-command-function ()
   "`post-command-hook' function used by vertico-posframe."
@@ -247,7 +251,7 @@ Show STRING when it is a string."
     (redisplay)
     (when (and vertico-posframe-mode
                (not (minibufferp)))
-      (posframe-hide vertico-posframe--minibuffer-cover))
+      (vertico-posframe--hide-minibuffer-cover))
     (when (and vertico-posframe-mode
                (minibufferp)
                (posframe-workable-p))
