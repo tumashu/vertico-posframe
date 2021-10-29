@@ -118,7 +118,10 @@ When 0, no border is showed."
   :group 'vertico-posframe)
 
 (defface vertico-posframe-cursor
-  '((t (:inherit cursor)))
+  '((((class color) (background light))
+     :foreground "white" :background "black" :inherit cursor)
+    (((class color) (background dark))
+     :foreground "black" :background "white" :inherit cursor))
   "Face used by the vertico-posframe's fake cursor."
   :group 'vertico-posframe)
 
