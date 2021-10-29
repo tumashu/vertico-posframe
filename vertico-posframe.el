@@ -242,7 +242,7 @@ Show STRING when it is a string."
      (lambda ()
        (posframe-hide vertico-posframe--minibuffer-cover)))))
 
-(defun vertico-posframe-post-command-function ()
+(defun vertico-posframe--post-command-function ()
   "`post-command-hook' function used by vertico-posframe."
   (while-no-input
     (redisplay)
@@ -298,14 +298,14 @@ Argument MESSAGE ."
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
     (advice-add #'completing-read-default :before #'vertico-posframe--advice)
     (advice-add #'completing-read-multiple :before #'vertico-posframe--advice)
-    (add-hook 'post-command-hook #'vertico-posframe-post-command-function))
+    (add-hook 'post-command-hook #'vertico-posframe--post-command-function))
    (t
     (advice-remove 'minibuffer-message #'vertico-posframe--minibuffer-message)
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup)
     (advice-remove #'completing-read-default #'vertico-posframe--advice)
     (advice-remove #'completing-read-multiple #'vertico-posframe--advice)
-    (remove-hook 'post-command-hook #'vertico-posframe-post-command-function)
+    (remove-hook 'post-command-hook #'vertico-posframe--post-command-function)
     (posframe-delete vertico-posframe--buffer))))
 
 (provide 'vertico-posframe)
