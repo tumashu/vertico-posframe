@@ -238,6 +238,9 @@ Show STRING when it is a string."
   (while-no-input
     (redisplay)
     (when (and vertico-posframe-mode
+               (not (minibufferp)))
+      (posframe-hide vertico-posframe--minibuffer-cover))
+    (when (and vertico-posframe-mode
                (minibufferp)
                (posframe-workable-p))
       (when (string-match-p "^eval-*" (symbol-name this-command))
