@@ -124,7 +124,6 @@ When 0, no border is showed."
 
 (defvar vertico-posframe--buffer " *vertico-posframe--buffer*")
 (defvar vertico-posframe--minibuffer-cover " *vertico-posframe--minibuffer-cover*")
-(defvar vertico-posframe--minibuffer-message " *vertico-posframe--minibuffer-message*")
 (defvar vertico-posframe--last-window nil)
 
 (defvar vertico-posframe--overlay)
