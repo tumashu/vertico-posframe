@@ -240,6 +240,8 @@ Show STRING when it is a string."
     (when (and vertico-posframe-mode
                (minibufferp)
                (posframe-workable-p))
+      (when (string-match-p "^eval-*" (symbol-name this-command))
+        (posframe-hide vertico-posframe--minibuffer-cover))
       (with-current-buffer (window-buffer (active-minibuffer-window))
         (let* ((count (vertico--format-count))
                (count-length (length count))
