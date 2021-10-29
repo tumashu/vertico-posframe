@@ -249,7 +249,7 @@ Show STRING when it is a string."
           (with-current-buffer (get-buffer-create vertico-posframe--buffer)
             (goto-char (point-min))
             (delete-region (point) (line-beginning-position 2))
-            (insert (concat count prompt) "  \n")
+            (insert (propertize (concat count prompt) 'face 'minibuffer-prompt) "  \n")
             (add-text-properties
              (+ point count-length) (+ point count-length 1)
              '(face vertico-posframe-cursor))))))))
