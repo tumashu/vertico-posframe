@@ -118,10 +118,7 @@ When 0, no border is showed."
   :group 'vertico-posframe)
 
 (defface vertico-posframe-cursor
-  '((((class color) (background light))
-     :foreground "white" :background "black" :inherit cursor)
-    (((class color) (background dark))
-     :foreground "black" :background "white" :inherit cursor))
+  '((t (:inherit cursor)))
   "Face used by the vertico-posframe's fake cursor."
   :group 'vertico-posframe)
 
@@ -267,7 +264,11 @@ Show STRING when it is a string."
             (insert count prompt "  \n")
             (add-text-properties
              (+ point count-length) (+ point count-length 1)
-             '(face vertico-posframe-cursor))))))))
+             `(face (;; FIXME: make sure background and foreground do
+                     ;; not have similar color. ivy-posframe have not
+                     ;; this problem, I can not find the reason.
+                     :foreground ,(face-attribute 'default :background)
+                     :inherit vertico-posframe-cursor)))))))))
 
 (defun vertico-posframe--setup ()
   "Setup minibuffer overlay, which pushes the minibuffer content down."
