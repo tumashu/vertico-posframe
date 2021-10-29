@@ -282,8 +282,8 @@ Show STRING when it is a string."
   "Advice function of `minibuffer-message'.
 Argument MESSAGE ."
   (let* ((count (vertico-posframe--format-count))
-         (prompt (buffer-string)))
-    (vertico-posframe--show (concat count prompt message))))
+         (contents (buffer-string)))
+    (vertico-posframe--show (concat count contents message))))
 
 ;;;###autoload
 (define-minor-mode vertico-posframe-mode
