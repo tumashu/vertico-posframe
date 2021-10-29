@@ -269,7 +269,8 @@ Show STRING when it is a string."
     (setq vertico-posframe--last-window (selected-window))))
 
 (defun vertico-posframe--minibuffer-message (message &rest _args)
-  "Advice function of `minibuffer-message'"
+  "Advice function of `minibuffer-message'.
+Argument MESSAGE ."
   (let* ((count (vertico--format-count))
          (prompt (buffer-string)))
     (vertico-posframe--show (concat count prompt message))))
