@@ -214,7 +214,8 @@ Show STRING when it is a string."
     (posframe-show vertico-posframe--minibuffer-cover
                    :string (make-string 120 ? )
                    :position (cons x y)
-                   :lines-truncate t)))
+                   :lines-truncate t
+                   :timeout 3)))
 
 (defun vertico-posframe--show-minibuffer-p ()
   "Test show minibuffer or not."
