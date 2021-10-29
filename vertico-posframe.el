@@ -169,16 +169,14 @@ Optional argument FRAME ."
 (defun vertico-posframe--display (lines)
   "Display LINES in posframe."
   (let ((count (vertico-posframe--format-count))
-        (prompt (minibuffer-prompt))
+        (prompt (propertize (minibuffer-prompt) 'face 'minibuffer-prompt))
         (content (minibuffer-contents))
         (show-minibuffer (vertico-posframe--show-minibuffer-p)))
     (with-current-buffer (get-buffer-create vertico-posframe--buffer)
       (setq-local inhibit-modification-hooks t
                   cursor-in-non-selected-windows 'box)
       (erase-buffer)
-      (insert count prompt content
-              (propertize " " 'face 'vertico-posframe-cursor)
-              "\n" (string-join lines)))
+      (insert count prompt content " \n" (string-join lines)))
     (with-selected-window (vertico-posframe-last-window)
       ;; Create a posframe to cover minibuffer.
       (if show-minibuffer
