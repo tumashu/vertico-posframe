@@ -311,7 +311,8 @@ Argument MESSAGE ."
     (advice-remove #'completing-read-default #'vertico-posframe--advice)
     (advice-remove #'completing-read-multiple #'vertico-posframe--advice)
     (remove-hook 'post-command-hook #'vertico-posframe--post-command-function)
-    (posframe-delete vertico-posframe--buffer))))
+    (posframe-delete vertico-posframe--buffer)
+    (posframe-delete vertico-posframe--minibuffer-cover))))
 
 (provide 'vertico-posframe)
 ;;; vertico-posframe.el ends here
