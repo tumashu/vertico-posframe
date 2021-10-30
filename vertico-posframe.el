@@ -298,14 +298,14 @@ Argument MESSAGE ."
   :global t
   (cond
    (vertico-posframe-mode
-    (advice-add 'minibuffer-message :before #'vertico-posframe--minibuffer-message)
+    (advice-add #'minibuffer-message :before #'vertico-posframe--minibuffer-message)
     (advice-add #'vertico--display-candidates :override #'vertico-posframe--display)
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
     (advice-add #'completing-read-default :before #'vertico-posframe--advice)
     (advice-add #'completing-read-multiple :before #'vertico-posframe--advice)
     (add-hook 'post-command-hook #'vertico-posframe--post-command-function))
    (t
-    (advice-remove 'minibuffer-message #'vertico-posframe--minibuffer-message)
+    (advice-remove #'minibuffer-message #'vertico-posframe--minibuffer-message)
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup)
     (advice-remove #'completing-read-default #'vertico-posframe--advice)
