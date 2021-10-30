@@ -208,13 +208,10 @@ Show STRING when it is a string."
 
 (defun vertico-posframe--create-minibuffer-cover (&optional string)
   "Create minibuffer cover."
-  (let* ((color (face-background 'default nil))
-         (win (active-minibuffer-window))
-         (x (window-pixel-left win))
-         (y (window-pixel-top win)))
+  (let ((color (face-background 'default nil)))
     (posframe-show vertico-posframe--minibuffer-cover
                    :string (or string (make-string 120 ? ))
-                   :position (cons x y)
+                   :position (cons 0 (frame-pixel-height))
                    :background-color color
                    :foreground-color color
                    :lines-truncate t
