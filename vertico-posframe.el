@@ -206,14 +206,14 @@ Show STRING when it is a string."
          :lines-truncate t
          (funcall vertico-posframe-size-function)))
 
-(defun vertico-posframe--create-minibuffer-cover ()
+(defun vertico-posframe--create-minibuffer-cover (&optional string)
   "Create minibuffer cover."
   (let* ((color (face-background 'default nil))
          (win (active-minibuffer-window))
          (x (window-pixel-left win))
          (y (window-pixel-top win)))
     (posframe-show vertico-posframe--minibuffer-cover
-                   :string (make-string 120 ? )
+                   :string (or string (make-string 120 ? ))
                    :position (cons x y)
                    :background-color color
                    :foreground-color color
@@ -303,7 +303,10 @@ Argument MESSAGE ."
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
     (advice-add #'completing-read-default :before #'vertico-posframe--advice)
     (advice-add #'completing-read-multiple :before #'vertico-posframe--advice)
-    (add-hook 'post-command-hook #'vertico-posframe--post-command-function))
+    (add-hook 'post-command-hook #'vertico-posframe--post-command-function)
+    ;; Create a mini minibuffer cover in adcance to limit flicker for
+    ;; background and foreground color changing.
+    (vertico-posframe--create-minibuffer-cover ""))
    (t
     (advice-remove #'minibuffer-message #'vertico-posframe--minibuffer-message)
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
