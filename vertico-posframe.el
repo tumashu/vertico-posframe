@@ -254,6 +254,9 @@ Show STRING when it is a string."
       (with-current-buffer (window-buffer (active-minibuffer-window))
         (let* ((point (point))
                (count (vertico-posframe--format-count))
+               ;; NOTE: Vertico count in minibuffer is before-string
+               ;; of an overlay, so the result of `buffer-string' will
+               ;; not include it.
                (contents (buffer-string))
                (n (+ point (length count)))
                (cursor-face
