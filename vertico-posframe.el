@@ -211,7 +211,7 @@ Show STRING when it is a string."
   (let ((color (face-background 'default nil)))
     (posframe-show vertico-posframe--minibuffer-cover
                    :string (or string (make-string 120 ? ))
-                   :position (cons 0 (frame-pixel-height))
+                   :position (cons 0 -1)
                    :background-color color
                    :foreground-color color
                    :lines-truncate t
