@@ -210,7 +210,7 @@ Show STRING when it is a string."
   "Create minibuffer cover."
   (let ((color (face-background 'default nil)))
     (posframe-show vertico-posframe--minibuffer-cover
-                   :string (or string (make-string 120 ? ))
+                   :string (or string (make-string (frame-width) ? ))
                    :position (cons 0 -1)
                    :background-color color
                    :foreground-color color
