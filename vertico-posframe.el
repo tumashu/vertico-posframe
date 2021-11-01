@@ -107,6 +107,19 @@ When 0, no border is showed."
   "The frame parameters used by vertico-posframe."
   :type 'string)
 
+(defcustom vertico-posframe-show-minibuffer-rules
+  (list "^eval-*")
+  "A list of rule showed minibuffer.
+
+a rule can be a regexp or a function.
+
+1. when rule is a regexp and it match `this-command'.
+2. when rule is a function and it return t.
+3. when rule is a symbol, its value is t.
+
+minibuffer will not be hided by minibuffer-cover."
+  :type '(repeat (choice string function)))
+
 (defface vertico-posframe
   '((t (:inherit default)))
   "Face used by the vertico-posframe."
@@ -229,7 +242,16 @@ Show STRING when it is a string."
 (defun vertico-posframe--show-minibuffer-p ()
   "Test show minibuffer or not."
   (or current-input-method
-      (string-match-p "^eval-*" (symbol-name this-command))))
+      (cl-some
+       (lambda (rule)
+         (cond ((functionp rule)
+                (funcall rule))
+               ((and rule (stringp rule))
+                (string-match-p rule (symbol-name this-command)))
+               ((symbolp rule)
+                (symbol-value rule))
+               (t nil)))
+       vertico-posframe-show-minibuffer-rules)))
 
 (defun vertico-posframe-last-window ()
   "Get the last actived window before active minibuffer."
