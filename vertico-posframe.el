@@ -180,7 +180,7 @@ Optional argument FRAME ."
     (with-selected-window (vertico-posframe-last-window)
       ;; Create a posframe to cover minibuffer.
       (if show-minibuffer
-          (posframe-hide vertico-posframe--minibuffer-cover)
+          (vertico-posframe--hide-minibuffer-cover)
         (vertico-posframe--create-minibuffer-cover))
       (vertico-posframe--show))))
 
