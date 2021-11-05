@@ -229,7 +229,8 @@ Show STRING when it is a string."
                  :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
                  :border-width vertico-posframe-border-width
                  :border-color (face-attribute 'vertico-posframe-border :background nil t)
-                 :override-parameters vertico-posframe-parameters))
+                 :override-parameters vertico-posframe-parameters
+                 :timeout 0.1))
 
 (defun vertico-posframe--create-minibuffer-cover (&optional string)
   "Create minibuffer cover."
