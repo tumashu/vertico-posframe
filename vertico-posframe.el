@@ -238,10 +238,8 @@ Show STRING when it is a string."
         (win (active-minibuffer-window)))
     (posframe-show vertico-posframe--minibuffer-cover
                    :string (or string (make-string (frame-width) ?\ ))
-                   :position (cons 0 (- (frame-pixel-height)
-                                        (if win
-                                            (window-pixel-height win)
-                                          (default-font-height))))
+                   :position (cons 0 (- (frame-pixel-height) (window-pixel-height win)))
+                   :height (window-height win)
                    :background-color color
                    :foreground-color color
                    :lines-truncate t
