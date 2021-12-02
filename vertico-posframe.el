@@ -180,18 +180,30 @@ Optional argument FRAME ."
 
 (defun vertico-posframe--display (lines)
   "Display LINES in posframe."
-  (let ((count (vertico-posframe--format-count))
-        (prompt (propertize (minibuffer-prompt) 'face 'minibuffer-prompt))
-        (content (minibuffer-contents))
-        (show-minibuffer (vertico-posframe--show-minibuffer-p)))
+  (let* ((show-minibuffer-p (vertico-posframe--show-minibuffer-p))
+         (count (vertico-posframe--format-count))
+         (prompt (propertize (minibuffer-prompt) 'face 'minibuffer-prompt))
+         ;; NOTE: Vertico count in minibuffer is before-string of an
+         ;; overlay, so minibuffer contents will not include it.
+         (contents (minibuffer-contents))
+         (n (+ (length count)
+               (max (point) (+ (length prompt) 1))))
+         ;; FIXME: make sure background and foreground do
+         ;; not have similar color. ivy-posframe have not
+         ;; this problem, I can not find the reason.
+         (cursor-face
+          (list :foreground (face-attribute 'default :background)
+                :inherit 'vertico-posframe-cursor)))
     (with-current-buffer (get-buffer-create vertico-posframe--buffer)
-      (setq-local inhibit-modification-hooks t
+      (setq-local inhibit-read-only nil
+                  inhibit-modification-hooks t
                   cursor-in-non-selected-windows 'box)
       (erase-buffer)
-      (insert count prompt content " \n" (string-join lines)))
+      (insert count prompt contents "\n" (string-join lines))
+      (add-text-properties n (+ n 1) `(face ,cursor-face)))
     (with-selected-window (vertico-posframe-last-window)
       ;; Create a posframe to cover minibuffer.
-      (if show-minibuffer
+      (if show-minibuffer-p
           (vertico-posframe--hide-minibuffer-cover)
         (vertico-posframe--create-minibuffer-cover))
       (vertico-posframe--show))))
@@ -281,37 +293,6 @@ Show STRING when it is a string."
     (posframe-hide vertico-posframe--buffer)
     (vertico-posframe--hide-minibuffer-cover)))
 
-(defun vertico-posframe--post-command-function ()
-  "`post-command-hook' function used by vertico-posframe."
-  (while-no-input
-    (redisplay)
-    (when (and vertico-posframe-mode
-               (not (minibufferp)))
-      (vertico-posframe--hide-minibuffer-cover))
-    (when (and vertico-posframe-mode
-               (minibufferp)
-               (posframe-workable-p))
-      (with-current-buffer (window-buffer (active-minibuffer-window))
-        (let* ((point (point))
-               (count (vertico-posframe--format-count))
-               ;; NOTE: Vertico count in minibuffer is before-string
-               ;; of an overlay, so the result of `buffer-string' will
-               ;; not include it.
-               (contents (buffer-string))
-               (n (+ point (length count)))
-               (cursor-face
-                ;; FIXME: make sure background and foreground do
-                ;; not have similar color. ivy-posframe have not
-                ;; this problem, I can not find the reason.
-                (list :foreground (face-attribute 'default :background)
-                      :inherit 'vertico-posframe-cursor)))
-          (remove-text-properties 0 (length contents) '(read-only nil) contents)
-          (with-current-buffer (get-buffer-create vertico-posframe--buffer)
-            (goto-char (point-min))
-            (delete-region (point) (line-beginning-position 2))
-            (insert count contents "  \n")
-            (add-text-properties n (+ n 1) `(face ,cursor-face))))))))
-
 (defun vertico-posframe--setup ()
   "Setup minibuffer overlay, which pushes the minibuffer content down."
   (add-hook 'minibuffer-exit-hook 'vertico-posframe--hide nil 'local)
@@ -333,7 +314,6 @@ Argument MESSAGE ."
     (advice-add #'minibuffer-message :before #'vertico-posframe--minibuffer-message)
     (advice-add #'vertico--display-candidates :override #'vertico-posframe--display)
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
-    (add-hook 'post-command-hook #'vertico-posframe--post-command-function)
     ;; Create posframe in advance to limit flicker.
     (vertico-posframe--show-init)
     (vertico-posframe--create-minibuffer-cover ""))
@@ -341,7 +321,6 @@ Argument MESSAGE ."
     (advice-remove #'minibuffer-message #'vertico-posframe--minibuffer-message)
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup)
-    (remove-hook 'post-command-hook #'vertico-posframe--post-command-function)
     (posframe-delete vertico-posframe--buffer)
     (posframe-delete vertico-posframe--minibuffer-cover))))
 
