@@ -137,7 +137,6 @@ minibuffer will not be hided by minibuffer-cover."
 
 (defvar vertico-posframe--buffer " *vertico-posframe--buffer*")
 (defvar vertico-posframe--minibuffer-cover " *vertico-posframe--minibuffer-cover*")
-(defvar vertico-posframe--last-window nil)
 
 ;; Fix warn
 (defvar exwm--connection)
@@ -270,7 +269,7 @@ Show STRING when it is a string."
 
 (defun vertico-posframe-last-window ()
   "Get the last actived window before active minibuffer."
-  (let ((window vertico-posframe--last-window))
+  (let ((window (minibuffer-selected-window)))
     (or (if (window-live-p window)
             window
           (next-window))
@@ -318,11 +317,6 @@ Show STRING when it is a string."
   (add-hook 'minibuffer-exit-hook 'vertico-posframe--hide nil 'local)
   (setq-local cursor-type '(bar . 0)))
 
-(defun vertico-posframe--advice (&rest _args)
-  "Advice for ORIG completion function, receiving ARGS."
-  (unless (minibufferp) ; minibuffer recursive
-    (setq vertico-posframe--last-window (selected-window))))
-
 (defun vertico-posframe--minibuffer-message (message &rest _args)
   "Advice function of `minibuffer-message'.
 Argument MESSAGE ."
@@ -339,8 +333,6 @@ Argument MESSAGE ."
     (advice-add #'minibuffer-message :before #'vertico-posframe--minibuffer-message)
     (advice-add #'vertico--display-candidates :override #'vertico-posframe--display)
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
-    (advice-add #'completing-read-default :before #'vertico-posframe--advice)
-    (advice-add #'completing-read-multiple :before #'vertico-posframe--advice)
     (add-hook 'post-command-hook #'vertico-posframe--post-command-function)
     ;; Create posframe in advance to limit flicker.
     (vertico-posframe--show-init)
@@ -349,8 +341,6 @@ Argument MESSAGE ."
     (advice-remove #'minibuffer-message #'vertico-posframe--minibuffer-message)
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup)
-    (advice-remove #'completing-read-default #'vertico-posframe--advice)
-    (advice-remove #'completing-read-multiple #'vertico-posframe--advice)
     (remove-hook 'post-command-hook #'vertico-posframe--post-command-function)
     (posframe-delete vertico-posframe--buffer)
     (posframe-delete vertico-posframe--minibuffer-cover))))
