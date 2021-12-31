@@ -320,9 +320,7 @@ Argument MESSAGE ."
    (t
     (advice-remove #'minibuffer-message #'vertico-posframe--minibuffer-message)
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
-    (advice-remove #'vertico--setup #'vertico-posframe--setup)
-    (posframe-delete vertico-posframe--buffer)
-    (posframe-delete vertico-posframe--minibuffer-cover))))
+    (advice-remove #'vertico--setup #'vertico-posframe--setup))))
 
 (provide 'vertico-posframe)
 ;;; vertico-posframe.el ends here
