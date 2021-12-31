@@ -300,9 +300,7 @@ Argument MESSAGE ."
    (vertico-posframe-mode
     (advice-add #'minibuffer-message :before #'vertico-posframe--minibuffer-message)
     (advice-add #'vertico--display-candidates :override #'vertico-posframe--display)
-    (advice-add #'vertico--setup :after #'vertico-posframe--setup)
-    ;; Create posframe in advance to limit flicker.
-    (vertico-posframe--create-minibuffer-cover ""))
+    (advice-add #'vertico--setup :after #'vertico-posframe--setup))
    (t
     (advice-remove #'minibuffer-message #'vertico-posframe--minibuffer-message)
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
