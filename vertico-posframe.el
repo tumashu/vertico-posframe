@@ -232,16 +232,17 @@ Show STRING when it is a string."
 
 (defun vertico-posframe--show-init ()
   "Create posframe in advance to limit flicker for `vertico-posframe--show'."
-  (posframe-show vertico-posframe--buffer
-                 :string ""
-                 :font vertico-posframe-font
-                 :position (cons 0 0)
-                 :background-color (face-attribute 'vertico-posframe :background nil t)
-                 :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
-                 :border-width vertico-posframe-border-width
-                 :border-color (face-attribute 'vertico-posframe-border :background nil t)
-                 :override-parameters vertico-posframe-parameters
-                 :timeout 0.1))
+  (unless (buffer-live-p (get-buffer vertico-posframe--buffer))
+    (posframe-show vertico-posframe--buffer
+                   :string ""
+                   :font vertico-posframe-font
+                   :position (cons 0 0)
+                   :background-color (face-attribute 'vertico-posframe :background nil t)
+                   :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
+                   :border-width vertico-posframe-border-width
+                   :border-color (face-attribute 'vertico-posframe-border :background nil t)
+                   :override-parameters vertico-posframe-parameters
+                   :timeout 0.1)))
 
 (defun vertico-posframe--create-minibuffer-cover (&optional string)
   "Create minibuffer cover."
