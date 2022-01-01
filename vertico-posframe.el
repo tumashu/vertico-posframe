@@ -293,6 +293,13 @@ Argument MESSAGE ."
     (vertico-posframe--show (concat count contents message))))
 
 ;;;###autoload
+(defun vertico-posframe-cleanup ()
+  "Remove frames and buffers used for vertico-posframe."
+  (interactive)
+  (posframe-delete vertico-posframe--buffer)
+  (posframe-delete vertico-posframe--minibuffer-cover))
+
+;;;###autoload
 (define-minor-mode vertico-posframe-mode
   "Display Vertico in posframe instead of the minibuffer."
   :global t
