@@ -107,19 +107,6 @@ When 0, no border is showed."
   "The frame parameters used by vertico-posframe."
   :type 'string)
 
-(defcustom vertico-posframe-show-minibuffer-rules
-  (list "^eval-*")
-  "A list of rule showed minibuffer.
-
-a rule can be a regexp or a function.
-
-1. when rule is a regexp and it match `this-command'.
-2. when rule is a function and it return t.
-3. when rule is a symbol, its value is t.
-
-minibuffer will not be hided by minibuffer-cover."
-  :type '(repeat (choice string function)))
-
 (defface vertico-posframe
   '((t (:inherit default)))
   "Face used by the vertico-posframe."
@@ -135,8 +122,7 @@ minibuffer will not be hided by minibuffer-cover."
   "Face used by the vertico-posframe's fake cursor."
   :group 'vertico-posframe)
 
-(defvar vertico-posframe--buffer " *vertico-posframe--buffer*")
-(defvar vertico-posframe--minibuffer-cover " *vertico-posframe--minibuffer-cover*")
+(defvar vertico-posframe--buffer nil)
 
 ;; Fix warn
 (defvar exwm--connection)
@@ -180,44 +166,25 @@ Optional argument FRAME ."
 
 (defun vertico-posframe--display (lines)
   "Display LINES in posframe."
-  (let* ((show-minibuffer-p (vertico-posframe--show-minibuffer-p))
-         (count (vertico-posframe--format-count))
-         (prompt (propertize (minibuffer-prompt) 'face 'minibuffer-prompt))
-         ;; NOTE: Vertico count in minibuffer is before-string of an
-         ;; overlay, so minibuffer contents will not include it.
-         (contents (minibuffer-contents))
-         (n (+ (length count)
-               (max (point) (+ (length prompt) 1))))
-         ;; FIXME: make sure background and foreground do
-         ;; not have similar color. ivy-posframe have not
-         ;; this problem, I can not find the reason.
+  (let* ((mbwin (active-minibuffer-window))
+         (inhibit-read-only t)
          (cursor-face
           (list :foreground (face-attribute 'default :background)
                 :inherit 'vertico-posframe-cursor)))
-    (with-current-buffer (get-buffer-create vertico-posframe--buffer)
-      (setq-local inhibit-read-only nil
-                  inhibit-modification-hooks t
-                  cursor-in-non-selected-windows 'box)
-      (erase-buffer)
-      (insert count prompt contents "\n" (string-join lines))
-      (add-text-properties n (+ n 1) `(face ,cursor-face)))
+    (setq vertico-posframe--buffer (current-buffer))
+    (window-resize mbwin (- (window-pixel-height mbwin)) nil nil 'pixelwise)
+    (set-window-vscroll mbwin 100)
     (with-selected-window (vertico-posframe-last-window)
-      ;; Create a posframe to cover minibuffer.
-      (if show-minibuffer-p
-          (vertico-posframe--hide-minibuffer-cover)
-        (vertico-posframe--create-minibuffer-cover))
       (vertico-posframe--show))))
 
 (defun vertico-posframe--format-count ()
   "Format vertico count."
   (propertize (or (vertico--format-count) "") 'face 'minibuffer-prompt))
 
-(defun vertico-posframe--show (&optional string)
-  "`posframe-show' of vertico-posframe.
-Show STRING when it is a string."
+(defun vertico-posframe--show ()
+  "`posframe-show' of vertico-posframe."
   (apply #'posframe-show
          vertico-posframe--buffer
-         :string string
          :font vertico-posframe-font
          :poshandler vertico-posframe-poshandler
          :background-color (face-attribute 'vertico-posframe :background nil t)
@@ -228,43 +195,8 @@ Show STRING when it is a string."
          :refposhandler vertico-posframe-refposhandler
          :hidehandler #'vertico-posframe-hidehandler
          :lines-truncate t
+         :refresh 0.5
          (funcall vertico-posframe-size-function)))
-
-(defun vertico-posframe--create-minibuffer-cover (&optional string)
-  "Create minibuffer cover."
-  (let ((color (face-background 'default nil))
-        (win (active-minibuffer-window)))
-    (posframe-show vertico-posframe--minibuffer-cover
-                   :string (or string (make-string (frame-width) ?\ ))
-                   :position (cons 0 (- (frame-pixel-height) (window-pixel-height win)))
-                   :height (+ (window-height win) 1)
-                   :background-color color
-                   :foreground-color color
-                   :lines-truncate t
-                   :timeout 3)))
-
-(defun vertico-posframe--hide-minibuffer-cover ()
-  "Hide minibuffer cover."
-  ;; FIXME: delay 0.1 second to remove minibuffer cover, which can
-  ;; limit minibuffer flicker.
-  (run-with-timer
-   0.1 nil
-   (lambda ()
-     (posframe-hide vertico-posframe--minibuffer-cover))))
-
-(defun vertico-posframe--show-minibuffer-p ()
-  "Test show minibuffer or not."
-  (or current-input-method
-      (cl-some
-       (lambda (rule)
-         (cond ((functionp rule)
-                (funcall rule))
-               ((and rule (stringp rule))
-                (string-match-p rule (symbol-name this-command)))
-               ((symbolp rule)
-                (symbol-value rule))
-               (t nil)))
-       vertico-posframe-show-minibuffer-rules)))
 
 (defun vertico-posframe-last-window ()
   "Get the last actived window before active minibuffer."
@@ -277,27 +209,17 @@ Show STRING when it is a string."
 (defun vertico-posframe--hide ()
   "Hide vertico buffer."
   (when (posframe-workable-p)
-    (posframe-hide vertico-posframe--buffer)
-    (vertico-posframe--hide-minibuffer-cover)))
+    (posframe-hide vertico-posframe--buffer)))
 
 (defun vertico-posframe--setup ()
   "Setup minibuffer overlay, which pushes the minibuffer content down."
-  (add-hook 'minibuffer-exit-hook 'vertico-posframe--hide nil 'local)
-  (setq-local cursor-type '(bar . 0)))
-
-(defun vertico-posframe--minibuffer-message (message &rest _args)
-  "Advice function of `minibuffer-message'.
-Argument MESSAGE ."
-  (let* ((count (vertico-posframe--format-count))
-         (contents (buffer-string)))
-    (vertico-posframe--show (concat count contents message))))
+  (add-hook 'minibuffer-exit-hook 'vertico-posframe--hide nil 'local))
 
 ;;;###autoload
 (defun vertico-posframe-cleanup ()
   "Remove frames and buffers used for vertico-posframe."
   (interactive)
-  (posframe-delete vertico-posframe--buffer)
-  (posframe-delete vertico-posframe--minibuffer-cover))
+  (posframe-delete vertico-posframe--buffer))
 
 ;;;###autoload
 (define-minor-mode vertico-posframe-mode
@@ -305,11 +227,9 @@ Argument MESSAGE ."
   :global t
   (cond
    (vertico-posframe-mode
-    (advice-add #'minibuffer-message :before #'vertico-posframe--minibuffer-message)
-    (advice-add #'vertico--display-candidates :override #'vertico-posframe--display)
+    (advice-add #'vertico--display-candidates :after #'vertico-posframe--display)
     (advice-add #'vertico--setup :after #'vertico-posframe--setup))
    (t
-    (advice-remove #'minibuffer-message #'vertico-posframe--minibuffer-message)
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup))))
 
