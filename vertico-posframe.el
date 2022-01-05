@@ -265,10 +265,12 @@ is called, window-point will be set to WINDOW-POINT."
   (cond
    (vertico-posframe-mode
     (advice-add #'vertico--display-candidates :after #'vertico-posframe--display)
-    (advice-add #'vertico--setup :after #'vertico-posframe--setup))
+    (advice-add #'vertico--setup :after #'vertico-posframe--setup)
+    (advice-add #'vertico--resize-window :override #'ignore))
    (t
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
-    (advice-remove #'vertico--setup #'vertico-posframe--setup))))
+    (advice-remove #'vertico--setup #'vertico-posframe--setup)
+    (advice-remove #'vertico--resize-window #'ignore))))
 
 (provide 'vertico-posframe)
 ;;; vertico-posframe.el ends here
