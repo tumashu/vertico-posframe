@@ -176,7 +176,6 @@ Optional argument FRAME ."
   "Display LINES in posframe."
   (let* ((show-minibuffer-p (vertico-posframe--show-minibuffer-p))
          (minibuffer-window (active-minibuffer-window))
-         (minibuffer (current-buffer))
          (point (point)))
     (setq vertico-posframe--buffer (current-buffer))
     (window-resize minibuffer-window
@@ -186,20 +185,19 @@ Optional argument FRAME ."
     (when show-minibuffer-p
       (set-window-vscroll minibuffer-window 0))
     (with-selected-window (vertico-posframe-last-window)
-      (vertico-posframe--show minibuffer point))))
+      (vertico-posframe--show vertico-posframe--buffer point))))
 
 (defun vertico-posframe--format-count ()
   "Format vertico count."
   (propertize (or (vertico--format-count) "") 'face 'minibuffer-prompt))
 
-(defun vertico-posframe--show (minibuffer minibuffer-window-point)
+(defun vertico-posframe--show (buffer window-point)
   "`posframe-show' of vertico-posframe.
 
-MINIBUFFER will be showed by `posframe-show'.  After
-`posframe-show' is called, window-point will be set to
-MINIBUFFER-WINDOW-POINT."
+BUFFER will be showed by `posframe-show'.  After `posframe-show'
+is called, window-point will be set to WINDOW-POINT."
   (let ((posframe (apply #'posframe-show
-                         minibuffer
+                         buffer
                          :font vertico-posframe-font
                          :poshandler vertico-posframe-poshandler
                          :background-color (face-attribute 'vertico-posframe :background nil t)
@@ -214,12 +212,12 @@ MINIBUFFER-WINDOW-POINT."
                          (funcall vertico-posframe-size-function))))
     ;; NOTE: `posframe-show' will force set window-point to 0, so we
     ;; need reset it again after `posframe-show'.
-    (when (numberp minibuffer-window-point)
+    (when (numberp window-point)
       (let ((window (frame-root-window posframe)))
         (when (window-live-p window)
-          (set-window-point window minibuffer-window-point))))
+          (set-window-point window window-point))))
     ;; NOTE: posframe will hide cursor, so we need let it show again.
-    (with-current-buffer minibuffer
+    (with-current-buffer buffer
       (setq-local cursor-type t)
       (setq-local cursor-in-non-selected-windows 'box))))
 
