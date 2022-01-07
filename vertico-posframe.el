@@ -223,17 +223,16 @@ is called, window-point will be set to WINDOW-POINT."
 
 (defun vertico-posframe--show-minibuffer-p ()
   "Test show minibuffer or not."
-  (or current-input-method
-      (cl-some
-       (lambda (rule)
-         (cond ((functionp rule)
-                (funcall rule))
-               ((and rule (stringp rule))
-                (string-match-p rule (symbol-name this-command)))
-               ((symbolp rule)
-                (symbol-value rule))
-               (t nil)))
-       vertico-posframe-show-minibuffer-rules)))
+  (cl-some
+   (lambda (rule)
+     (cond ((functionp rule)
+            (funcall rule))
+           ((and rule (stringp rule))
+            (string-match-p rule (symbol-name this-command)))
+           ((symbolp rule)
+            (symbol-value rule))
+           (t nil)))
+   vertico-posframe-show-minibuffer-rules))
 
 (defun vertico-posframe-last-window ()
   "Get the last actived window before active minibuffer."
