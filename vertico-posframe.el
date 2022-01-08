@@ -203,7 +203,11 @@ is called, window-point will be set to WINDOW-POINT."
                          :background-color (face-attribute 'vertico-posframe :background nil t)
                          :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
                          :border-width vertico-posframe-border-width
-                         :border-color (face-attribute 'vertico-posframe-border :background nil t)
+                         :border-color
+                         (let ((color (face-attribute 'vertico-posframe-border :background nil t)))
+                           (or (nth (- (minibuffer-depth) 1)
+                                    (list color "red" "yellow" "green" "blue" "purple"))
+                               color))
                          :override-parameters vertico-posframe-parameters
                          :refposhandler vertico-posframe-refposhandler
                          :hidehandler #'vertico-posframe-hidehandler
