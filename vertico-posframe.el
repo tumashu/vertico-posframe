@@ -208,7 +208,6 @@ is called, window-point will be set to WINDOW-POINT."
                          :refposhandler vertico-posframe-refposhandler
                          :hidehandler #'vertico-posframe-hidehandler
                          :lines-truncate t
-                         :refresh 0.5
                          (funcall vertico-posframe-size-function))))
     ;; NOTE: `posframe-show' will force set window-point to 0, so we
     ;; need reset it again after `posframe-show'.
