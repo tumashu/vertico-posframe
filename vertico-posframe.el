@@ -187,10 +187,6 @@ Optional argument FRAME ."
     (with-selected-window (vertico-posframe-last-window)
       (vertico-posframe--show vertico-posframe--buffer point))))
 
-(defun vertico-posframe--format-count ()
-  "Format vertico count."
-  (propertize (or (vertico--format-count) "") 'face 'minibuffer-prompt))
-
 (defun vertico-posframe--show (buffer window-point)
   "`posframe-show' of vertico-posframe.
 
