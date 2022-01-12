@@ -289,8 +289,9 @@ is called, window-point will be set to WINDOW-POINT."
 (defun vertico-posframe-cleanup ()
   "Remove frames and buffers used for vertico-posframe."
   (interactive)
-  (when vertico-posframe--buffer
-    (posframe-delete vertico-posframe--buffer)))
+  (dolist (buffer (buffer-list))
+    (when (minibufferp buffer)
+      (posframe-delete-frame buffer))))
 
 ;;;###autoload
 (define-minor-mode vertico-posframe-mode
