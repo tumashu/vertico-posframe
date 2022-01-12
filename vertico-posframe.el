@@ -174,16 +174,9 @@ Optional argument FRAME ."
 
 (defun vertico-posframe--display (_lines)
   "Display LINES in posframe."
-  (let* ((show-minibuffer-p (vertico-posframe--show-minibuffer-p))
-         (minibuffer-window (active-minibuffer-window))
-         (point (point)))
+  (let ((point (point)))
     (setq vertico-posframe--buffer (current-buffer))
-    (window-resize minibuffer-window
-                   (- (window-pixel-height minibuffer-window))
-                   nil nil 'pixelwise)
-    (set-window-vscroll minibuffer-window 100)
-    (when show-minibuffer-p
-      (set-window-vscroll minibuffer-window 0))
+    (vertico-posframe--handle-minibuffer-window)
     (with-selected-window (vertico-posframe-last-window)
       (vertico-posframe--show vertico-posframe--buffer point))))
 
@@ -232,6 +225,17 @@ is called, window-point will be set to WINDOW-POINT."
             (symbol-value rule))
            (t nil)))
    vertico-posframe-show-minibuffer-rules))
+
+(defun vertico-posframe--handle-minibuffer-window ()
+  "Handle minibuffer window."
+  (let ((show-minibuffer-p (vertico-posframe--show-minibuffer-p))
+        (minibuffer-window (active-minibuffer-window)))
+    (window-resize minibuffer-window
+                   (- (window-pixel-height minibuffer-window))
+                   nil nil 'pixelwise)
+    (set-window-vscroll minibuffer-window 100)
+    (when show-minibuffer-p
+      (set-window-vscroll minibuffer-window 0))))
 
 (defun vertico-posframe-last-window ()
   "Get the last actived window before active minibuffer."
