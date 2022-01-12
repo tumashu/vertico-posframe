@@ -176,6 +176,7 @@ Optional argument FRAME ."
   "Display LINES in posframe."
   (let ((point (point)))
     (setq vertico-posframe--buffer (current-buffer))
+    (setq-local max-mini-window-height 1)
     (vertico-posframe--handle-minibuffer-window)
     (with-selected-window (vertico-posframe-last-window)
       (vertico-posframe--show vertico-posframe--buffer point))))
@@ -245,14 +246,15 @@ is called, window-point will be set to WINDOW-POINT."
           (next-window))
         (selected-window))))
 
-(defun vertico-posframe--hide ()
-  "Hide vertico buffer."
+(defun vertico-posframe--minibuffer-exit-hook ()
+  "The function used by `minibuffer-exit-hook'."
+  (setq-local max-mini-window-height 1.0)
   (when (posframe-workable-p)
     (posframe-hide vertico-posframe--buffer)))
 
 (defun vertico-posframe--setup ()
   "Setup minibuffer overlay, which pushes the minibuffer content down."
-  (add-hook 'minibuffer-exit-hook 'vertico-posframe--hide nil 'local))
+  (add-hook 'minibuffer-exit-hook #'vertico-posframe--minibuffer-exit-hook nil 'local))
 
 ;;;###autoload
 (defun vertico-posframe-cleanup ()
