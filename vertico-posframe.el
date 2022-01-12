@@ -127,7 +127,27 @@ minibuffer will not be hided by minibuffer-cover."
 
 (defface vertico-posframe-border
   '((t (:inherit default :background "gray50")))
-  "Face used by the vertico-posframe's border."
+  "Face used by the vertico-posframe's border when minibuffer-depth = 1."
+  :group 'vertico-posframe)
+
+(defface vertico-posframe-border-2
+  '((t (:inherit default :background "red")))
+  "Face used by the vertico-posframe's border when minibuffer-depth = 2."
+  :group 'vertico-posframe)
+
+(defface vertico-posframe-border-3
+  '((t (:inherit default :background "green")))
+  "Face used by the vertico-posframe's border when minibuffer-depth = 3."
+  :group 'vertico-posframe)
+
+(defface vertico-posframe-border-4
+  '((t (:inherit default :background "blue")))
+  "Face used by the vertico-posframe's border when minibuffer-depth = 4."
+  :group 'vertico-posframe)
+
+(defface vertico-posframe-border-fallback
+  '((t (:inherit default :background "yellow")))
+  "Face used by the vertico-posframe's border when find no face."
   :group 'vertico-posframe)
 
 (defvar vertico-posframe--buffer nil)
@@ -193,11 +213,7 @@ is called, window-point will be set to WINDOW-POINT."
                          :background-color (face-attribute 'vertico-posframe :background nil t)
                          :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
                          :border-width vertico-posframe-border-width
-                         :border-color
-                         (let ((color (face-attribute 'vertico-posframe-border :background nil t)))
-                           (or (nth (- (minibuffer-depth) 1)
-                                    (list color "red" "yellow" "green" "blue" "purple"))
-                               color))
+                         :border-color (vertico-posframe--get-border-color)
                          :override-parameters vertico-posframe-parameters
                          :refposhandler vertico-posframe-refposhandler
                          :hidehandler #'vertico-posframe-hidehandler
@@ -213,6 +229,19 @@ is called, window-point will be set to WINDOW-POINT."
     (with-current-buffer buffer
       (setq-local cursor-type t)
       (setq-local cursor-in-non-selected-windows 'box))))
+
+(defun vertico-posframe--get-border-color ()
+  "Get color of vertico-posframe border."
+  (face-attribute
+   (let* ((n (minibuffer-depth))
+          (face (intern (format "vertico-posframe-border-%s" n)))
+          (face-fallback 'vertico-posframe-border-fallback))
+     (if (= n 1)
+         'vertico-posframe-border
+       (if (facep face)
+           face
+         face-fallback)))
+   :background))
 
 (defun vertico-posframe--show-minibuffer-p ()
   "Test show minibuffer or not."
