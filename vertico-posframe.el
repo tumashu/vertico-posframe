@@ -84,6 +84,10 @@ When nil, Using current frame's font as fallback."
   "The min height of vertico-posframe."
   :type 'number)
 
+(defcustom vertico-posframe-truncate-lines t
+  "Non-nil means truncate lines in vertico-posframe."
+  :type 'boolean)
+
 (defcustom vertico-posframe-poshandler #'posframe-poshandler-frame-center
   "The posframe poshandler used by vertico-posframe."
   :type 'function)
@@ -219,7 +223,7 @@ is called, window-point will be set to WINDOW-POINT."
                   :override-parameters vertico-posframe-parameters
                   :refposhandler vertico-posframe-refposhandler
                   :hidehandler #'vertico-posframe-hidehandler
-                  :lines-truncate t
+                  :lines-truncate vertico-posframe-truncate-lines
                   (funcall vertico-posframe-size-function)))))
     ;; NOTE: `posframe-show' will force set window-point to 0, so we
     ;; need reset it again after `posframe-show'.
