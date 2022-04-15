@@ -255,7 +255,9 @@ is called, window-point will be set to WINDOW-POINT."
    (lambda (rule)
      (cond ((functionp rule)
             (funcall rule))
-           ((and rule (stringp rule))
+           ((and rule
+                 (stringp rule)
+                 (symbolp this-command))
             (string-match-p rule (symbol-name this-command)))
            ((symbolp rule)
             (symbol-value rule))
