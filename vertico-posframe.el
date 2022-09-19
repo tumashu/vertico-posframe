@@ -61,7 +61,7 @@
 
 (defgroup vertico-posframe nil
   "Using posframe to show vertico."
-  :group 'vertico-posframe)
+  :group 'vertico)
 
 (defcustom vertico-posframe-font nil
   "The font used by vertico-posframe.
