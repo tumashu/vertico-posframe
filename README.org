@@ -24,3 +24,19 @@ click.
 
 By the way, User can set *any* parameters of vertico-posframe with
 the help of `vertico-posframe-parameters'.
+
+*** How to disable vertico-posframe for some commands
+Some commands (like =consult-line=) show preview of the selection in
+the current window. Showing selection in a posframe on the top of this
+window might be inconvenient. In this case you can customize the
+=vertico-posframe-disable-rules= variable which contains a list of
+exception rules for vertico-posframe.
+
+Each element can be one of the following:
+1. A regexp that matches the name of =this-command=
+2. A function that returns true if the rule must match
+3. A symbol which refers to a vriable. If variable is true, rules matches.
+
+#+BEGIN_EXAMPLE
+(setq vertico-posframe-disable-rules '("consult-line"))
+#+END_EXAMPLE

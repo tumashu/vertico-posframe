@@ -113,7 +113,7 @@ When 0, no border is showed."
 
 (defcustom vertico-posframe-show-minibuffer-rules
   (list "^eval-*")
-  "A list of rule showed minibuffer.
+  "A list of rules when minibuffer should not be hidden.
 
 a rule can be a regexp or a function.
 
@@ -121,7 +121,18 @@ a rule can be a regexp or a function.
 2. when rule is a function and it return t.
 3. when rule is a symbol, its value is t.
 
-minibuffer will not be hided by minibuffer-cover."
+minibuffer will not be hidden by minibuffer-cover."
+  :type '(repeat (choice string function)))
+
+(defcustom vertico-posframe-disable-rules
+  nil
+  "A list of rules when vertico should not be shown in posframe.
+
+a rule can be a regexp or a function.
+
+1. when rule is a regexp and it match `this-command'.
+2. when rule is a function and it return t.
+3. when rule is a symbol, its value is t."
   :type '(repeat (choice string function)))
 
 (defface vertico-posframe
@@ -154,7 +165,9 @@ minibuffer will not be hided by minibuffer-cover."
   "Face used by the vertico-posframe's border when find no face."
   :group 'vertico-posframe)
 
-(defvar vertico-posframe--buffer nil)
+(defvar vertico-posframe--buffer nil
+  "Vertico buffer that should be shown in posframe.  It is intentionally
+kept nil if completions for `this-command' should not be shown in a popup.")
 
 ;; Fix warn
 (defvar exwm--connection)
@@ -198,11 +211,9 @@ Optional argument FRAME ."
 
 (defun vertico-posframe--display (_lines)
   "Display _LINES in posframe."
-  (let ((buffer (current-buffer))
-        (point (point)))
-    (setq vertico-posframe--buffer buffer)
+  (when vertico-posframe--buffer
     (vertico-posframe--handle-minibuffer-window)
-    (vertico-posframe--show buffer point)))
+    (vertico-posframe--show vertico-posframe--buffer (point))))
 
 (defun vertico-posframe--show (buffer window-point)
   "`posframe-show' of vertico-posframe.
@@ -249,8 +260,8 @@ is called, window-point will be set to WINDOW-POINT."
          face-fallback)))
    :background))
 
-(defun vertico-posframe--show-minibuffer-p ()
-  "Test show minibuffer or not."
+(defun vertico-posframe--rules-match-p (rules)
+  "Tests whether current command or buffer matches one of the RULES."
   (cl-some
    (lambda (rule)
      (cond ((functionp rule)
@@ -262,7 +273,15 @@ is called, window-point will be set to WINDOW-POINT."
            ((symbolp rule)
             (symbol-value rule))
            (t nil)))
-   vertico-posframe-show-minibuffer-rules))
+   rules))
+
+(defun vertico-posframe--show-minibuffer-p ()
+  "Test whether minibuffer should be shown or not."
+  (vertico-posframe--rules-match-p vertico-posframe-show-minibuffer-rules))
+
+(defun vertico-posframe--disable-p ()
+  "Test show minibuffer or not."
+  (vertico-posframe--rules-match-p vertico-posframe-disable-rules))
 
 (defun vertico-posframe--handle-minibuffer-window ()
   "Handle minibuffer window."
@@ -289,12 +308,21 @@ is called, window-point will be set to WINDOW-POINT."
   ;; `vertico--resize-window' have set `max-mini-window-height' to
   ;; 1.0, so I think setting it to 1.0 here is safe :-).
   (setq-local max-mini-window-height 1.0)
-  (when (posframe-workable-p)
+  (when (and (posframe-workable-p) vertico-posframe--buffer)
     (posframe-hide vertico-posframe--buffer)))
 
 (defun vertico-posframe--setup ()
   "Setup minibuffer overlay, which pushes the minibuffer content down."
-  (add-hook 'minibuffer-exit-hook #'vertico-posframe--minibuffer-exit-hook nil 'local))
+  (if (vertico-posframe--rules-match-p vertico-posframe-disable-rules)
+      (setq vertico-posframe--buffer nil)
+    (setq vertico-posframe--buffer (current-buffer))
+    (add-hook 'minibuffer-exit-hook #'vertico-posframe--minibuffer-exit-hook nil 'local)))
+
+(defun vertico-posframe--ignore-when-posframe-enabled (oldfun &rest arguments)
+  "Disbles resizing vertico window if vertico buffer is rendered in
+a posframe."
+  (unless vertico-posframe--buffer
+    (apply oldfun arguments)))
 
 ;;;###autoload
 (defun vertico-posframe-cleanup ()
@@ -312,11 +340,11 @@ is called, window-point will be set to WINDOW-POINT."
    (vertico-posframe-mode
     (advice-add #'vertico--display-candidates :after #'vertico-posframe--display)
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
-    (advice-add #'vertico--resize-window :override #'ignore))
+    (advice-add #'vertico--resize-window :around #'vertico-posframe--ignore-when-posframe-enabled))
    (t
     (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
     (advice-remove #'vertico--setup #'vertico-posframe--setup)
-    (advice-remove #'vertico--resize-window #'ignore))))
+    (advice-remove #'vertico--resize-window #'vertico-posframe--ignore-when-posframe-enabled))))
 
 (provide 'vertico-posframe)
 ;;; vertico-posframe.el ends here
