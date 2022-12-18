@@ -212,9 +212,9 @@ is called, window-point will be set to WINDOW-POINT."
   (let ((posframe
          ;; Some posframe poshandlers need infos of last-window.
          (with-selected-window (vertico-posframe-last-window)
-           ;; Variable settings in `vertico-multiform-commands' of
-           ;; will save to BUFFER as buffer-local variables, so we
-           ;; need to switch to BUFFER to get settings, for example:
+           ;; Variable settings in `vertico-multiform-commands' will
+           ;; save to BUFFER as buffer-local variables, so we need to
+           ;; switch to BUFFER to get settings, for example:
            ;;
            ;; (setq vertico-multiform-commands
            ;;       '((consult-line
