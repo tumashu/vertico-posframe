@@ -184,17 +184,17 @@ Optional argument FRAME ."
   "Hidehandler used by vertico-posframe."
   (not (minibufferp)))
 
-(defun vertico-posframe-get-size ()
+(defun vertico-posframe-get-size (buffer)
   "The default functon used by `vertico-posframe-size-function'."
   (list
-   :height vertico-posframe-height
-   :width vertico-posframe-width
-   :min-height (or vertico-posframe-min-height
+   :height (buffer-local-value 'vertico-posframe-height buffer)
+   :width (buffer-local-value 'vertico-posframe-width buffer)
+   :min-height (or (buffer-local-value 'vertico-posframe-min-height buffer)
                    (let ((height (+ vertico-count 1)))
-                     (min height (or vertico-posframe-height height))))
-   :min-width (or vertico-posframe-min-width
+                     (min height (or (buffer-local-value 'vertico-posframe-height buffer) height))))
+   :min-width (or (buffer-local-value 'vertico-posframe-min-width buffer)
                   (let ((width (round (* (frame-width) 0.62))))
-                    (min width (or vertico-posframe-width width))))))
+                    (min width (or (buffer-local-value 'vertico-posframe-width buffer) width))))))
 
 (defun vertico-posframe--display (_lines)
   "Display _LINES in posframe."
@@ -212,30 +212,29 @@ is called, window-point will be set to WINDOW-POINT."
   (let ((posframe
          ;; Some posframe poshandlers need infos of last-window.
          (with-selected-window (vertico-posframe-last-window)
-           ;; Variable settings in `vertico-multiform-commands' will
-           ;; save to BUFFER as buffer-local variables, so we need to
-           ;; switch to BUFFER to get settings, for example:
-           ;;
-           ;; (setq vertico-multiform-commands
-           ;;       '((consult-line
-           ;;          posframe
-           ;;          (vertico-posframe-poshandler . posframe-poshandler-frame-top-center))
-           ;;         (t buffer)))
-           ;;
-           (with-current-buffer buffer
-             (apply #'posframe-show
-                    buffer
-                    :font vertico-posframe-font
-                    :poshandler vertico-posframe-poshandler
-                    :background-color (face-attribute 'vertico-posframe :background nil t)
-                    :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
-                    :border-width vertico-posframe-border-width
-                    :border-color (vertico-posframe--get-border-color)
-                    :override-parameters vertico-posframe-parameters
-                    :refposhandler vertico-posframe-refposhandler
-                    :hidehandler #'vertico-posframe-hidehandler
-                    :lines-truncate vertico-posframe-truncate-lines
-                    (funcall vertico-posframe-size-function))))))
+           (apply #'posframe-show
+                  buffer
+                  :font (buffer-local-value 'vertico-posframe-font buffer)
+                  ;; Variable settings in `vertico-multiform-commands' will
+                  ;; save to BUFFER as buffer-local variables, so we need to
+                  ;; get buffer local value from BUFFER, for example:
+                  ;;
+                  ;; (setq vertico-multiform-commands
+                  ;;       '((consult-line
+                  ;;          posframe
+                  ;;          (vertico-posframe-poshandler . posframe-poshandler-frame-top-center))
+                  ;;         (t buffer)))
+                  ;;
+                  :poshandler (buffer-local-value 'vertico-posframe-poshandler buffer)
+                  :background-color (face-attribute 'vertico-posframe :background nil t)
+                  :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
+                  :border-width (buffer-local-value 'vertico-posframe-border-width buffer)
+                  :border-color (vertico-posframe--get-border-color)
+                  :override-parameters (buffer-local-value 'vertico-posframe-parameters buffer)
+                  :refposhandler (buffer-local-value 'vertico-posframe-refposhandler buffer)
+                  :hidehandler #'vertico-posframe-hidehandler
+                  :lines-truncate (buffer-local-value 'vertico-posframe-truncate-lines buffer)
+                  (funcall vertico-posframe-size-function buffer)))))
     ;; NOTE: `posframe-show' will force set window-point to 0, so we
     ;; need reset it again after `posframe-show'.
     (when (numberp window-point)
