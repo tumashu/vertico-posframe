@@ -320,7 +320,8 @@ is called, window-point will be set to WINDOW-POINT."
   "Display Vertico in posframe instead of the minibuffer."
   :global t
   (cond
-   (vertico-posframe-mode
+   ((and vertico-posframe-mode
+         (posframe-workable-p))
     (advice-add #'vertico--display-candidates :after #'vertico-posframe--display)
     (advice-add #'vertico--setup :after #'vertico-posframe--setup)
     (advice-add #'vertico--resize-window :override #'ignore))
