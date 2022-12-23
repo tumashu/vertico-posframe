@@ -32,6 +32,11 @@ click.
 (vertico-multiform-mode 1)
 #+end_example
 
+NOTE: vertico-posframe-mode will be activated/deactivated by
+vertico-multiform-mode dynamically when you add 'posframe' setting to
+vertico-multiform-commands, please do not enable vertico-posframe-mode
+globally at the moment.
+
 *** How to show fringe to vertico-posframe
 #+BEGIN_EXAMPLE
 (setq vertico-posframe-parameters
