@@ -9,10 +9,10 @@ NOTE: vertico-posframe requires Emacs 26 and do not support mouse
 click.
 
 ** How to enable vertico-posframe
-#+BEGIN_EXAMPLE
+#+begin_example
 (require 'vertico-posframe)
 (vertico-posframe-mode 1)
-#+END_EXAMPLE
+#+end_example
 
 ** Tips
 
@@ -38,20 +38,18 @@ vertico-multiform-commands, please do not enable vertico-posframe-mode
 globally at the moment. 
 
 *** To conditionally disable posframe
-#+begin_example 
-  (setq vertico-multiform-commands
-        '(
-          (consult-line (:not posframe))
-          (t posframe)
-          ))
+#+begin_example
+(setq vertico-multiform-commands
+      '((consult-line (:not posframe))
+        (t posframe)))
 #+end_example
 
 *** How to show fringe to vertico-posframe
-#+BEGIN_EXAMPLE
+#+begin_example
 (setq vertico-posframe-parameters
       '((left-fringe . 8)
         (right-fringe . 8)))
-#+END_EXAMPLE
+#+end_example
 
 By the way, User can set *any* parameters of vertico-posframe with
 the help of `vertico-posframe-parameters'.
