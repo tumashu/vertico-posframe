@@ -35,7 +35,16 @@ click.
 NOTE: vertico-posframe-mode will be activated/deactivated by
 vertico-multiform-mode dynamically when you add 'posframe' setting to
 vertico-multiform-commands, please do not enable vertico-posframe-mode
-globally at the moment.
+globally at the moment. 
+
+*** To conditionally disable posframe
+#+begin_example 
+  (setq vertico-multiform-commands
+        '(
+          (consult-line (:not posframe))
+          (t posframe)
+          ))
+#+end_example
 
 *** How to show fringe to vertico-posframe
 #+BEGIN_EXAMPLE
