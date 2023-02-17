@@ -349,7 +349,12 @@ is called, window-point will be set to WINDOW-POINT."
         (funcall (buffer-local-value 'vertico-posframe-fallback-mode (current-buffer)) -1)
       (advice-remove #'vertico--display-candidates #'vertico-posframe--display)
       (advice-remove #'vertico--setup #'vertico-posframe--setup)
-      (advice-remove #'vertico--resize-window #'ignore)))))
+      (advice-remove #'vertico--resize-window #'ignore)
+      ;; When vertico-posframe-mode is disabled, hide posframe and let
+      ;; the contents of minibuffer show again, this approach let
+      ;; vertico-posframe works with vertico multiform toggle.
+      (set-window-vscroll (active-minibuffer-window) 0)
+      (posframe-hide vertico-posframe--buffer)))))
 
 (provide 'vertico-posframe)
 ;;; vertico-posframe.el ends here
