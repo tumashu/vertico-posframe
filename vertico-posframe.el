@@ -218,9 +218,14 @@ minibuffer will not be hided by minibuffer-cover."
 (cl-defmethod vertico--resize-window (_height &context (vertico-posframe-mode (eql t))))
 
 (cl-defmethod vertico--display-candidates :after (_candidates &context (vertico-posframe-mode (eql t)))
-  "Display _LINES in posframe."
+  "Display candidates in posframe.
+
+1. Let minibuffer-window's height = 1
+2. Hide the context of minibuffer-window by vscroll 100.
+3. Show minibuffer with the help of posframe-show."
   (let ((buffer (current-buffer))
         (point (point)))
+    ;; NOTE: buffer is minibuffer.
     (setq vertico-posframe--buffer buffer)
     (vertico-posframe--handle-minibuffer-window)
     (vertico-posframe--show buffer point)))
@@ -230,10 +235,11 @@ minibuffer will not be hided by minibuffer-cover."
   (let ((show-minibuffer-p (vertico-posframe--show-minibuffer-p))
         (minibuffer-window (active-minibuffer-window)))
     (setq-local max-mini-window-height 1)
+    ;; Let minibuffer-window's height = 1
     (window-resize minibuffer-window
                    (- (window-pixel-height minibuffer-window))
                    nil nil 'pixelwise)
-    ;; Hide the context showed in minibuffer.
+    ;; Hide the context showed in minibuffer-window.
     (set-window-vscroll minibuffer-window 100)
     (when show-minibuffer-p
       (set-window-vscroll minibuffer-window 0))))
