@@ -198,6 +198,12 @@ minibuffer will not be hided by minibuffer-cover."
       (set-window-vscroll (active-minibuffer-window) 0)
       (posframe-hide vertico-posframe--buffer)))))
 
+(eval-after-load 'vertico-multiform
+  '(progn
+     (cl-pushnew 'vertico-posframe-mode vertico-multiform--display-modes)
+     (vertico-multiform--define-display-toggle posframe)
+     (define-key vertico-multiform-map (kbd "M-P") #'vertico-multiform-posframe)))
+
 (cl-defmethod vertico--setup :after (&context (vertico-posframe-mode (eql t)))
   "Setup minibuffer overlay, which pushes the minibuffer content down."
   (add-hook 'minibuffer-exit-hook #'vertico-posframe--minibuffer-exit-hook nil 'local))
