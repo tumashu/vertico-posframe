@@ -264,6 +264,8 @@ minibuffer will not be hided by minibuffer-cover."
   (with-selected-window (vertico-posframe-last-window) ;Some posframe poshandlers need infos of last-window.
     (apply #'posframe-show
            buffer
+           :cursor 'box
+           :window-point window-point
            :font (buffer-local-value 'vertico-posframe-font buffer)
            ;; Variable settings in `vertico-multiform-commands' will
            ;; save to BUFFER as buffer-local variables, so we need to
@@ -275,8 +277,6 @@ minibuffer will not be hided by minibuffer-cover."
            ;;          (vertico-posframe-poshandler . posframe-poshandler-frame-top-center))
            ;;         (t buffer)))
            ;;
-           :cursor 'box
-           :window-point window-point
            :poshandler (buffer-local-value 'vertico-posframe-poshandler buffer)
            :background-color (face-attribute 'vertico-posframe :background nil t)
            :foreground-color (face-attribute 'vertico-posframe :foreground nil t)
