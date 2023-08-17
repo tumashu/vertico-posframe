@@ -307,7 +307,7 @@ minibuffer will not be hided by minibuffer-cover."
        (if (facep face)
            face
          face-fallback)))
-   :background))
+   :background nil t))
 
 (defun vertico-posframe-refposhandler-default (&optional frame)
   "The default posframe refposhandler used by vertico-posframe.
