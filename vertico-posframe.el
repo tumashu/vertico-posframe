@@ -204,9 +204,15 @@ minibuffer will not be hided by minibuffer-cover."
 (vertico-multiform--define-display-toggle posframe)
 (define-key vertico-multiform-map (kbd "M-P") #'vertico-multiform-posframe)
 
-(cl-defmethod vertico--setup :after (&context (vertico-posframe-mode (eql t)))
+(cl-defmethod vertico--setup
+  :after (&context ((vertico-posframe-mode-workable-p) (eql t)))
   "Setup minibuffer overlay, which pushes the minibuffer content down."
   (add-hook 'minibuffer-exit-hook #'vertico-posframe--minibuffer-exit-hook nil 'local))
+
+(defun vertico-posframe-mode-workable-p ()
+  "Test `vertico-posframe-mode' is actived and can work or not."
+  (and vertico-posframe-mode
+       (posframe-workable-p)))
 
 (defun vertico-posframe--minibuffer-exit-hook ()
   "The function used by `minibuffer-exit-hook'."
@@ -215,9 +221,11 @@ minibuffer will not be hided by minibuffer-cover."
   (setq-local max-mini-window-height 1.0)
   (posframe-hide vertico-posframe--buffer))
 
-(cl-defmethod vertico--resize-window (_height &context (vertico-posframe-mode (eql t))))
+(cl-defmethod vertico--resize-window
+  (_height &context ((vertico-posframe-mode-workable-p) (eql t))))
 
-(cl-defmethod vertico--display-candidates :after (_candidates &context (vertico-posframe-mode (eql t)))
+(cl-defmethod vertico--display-candidates
+  :after (_candidates &context ((vertico-posframe-mode-workable-p) (eql t)))
   "Display candidates in posframe.
 
 1. Let minibuffer-window's height = 1
