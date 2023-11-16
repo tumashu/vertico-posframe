@@ -186,18 +186,20 @@ minibuffer will not be hided by minibuffer-cover."
 (define-minor-mode vertico-posframe-mode
   "Display Vertico in posframe instead of the minibuffer."
   :global t
-  (cond
-   (vertico-posframe-mode
-    (when (not (posframe-workable-p))
-      (funcall (buffer-local-value 'vertico-posframe-fallback-mode (current-buffer)) 1)))
-   (t
-    (if (not (posframe-workable-p))
-        (funcall (buffer-local-value 'vertico-posframe-fallback-mode (current-buffer)) -1)
-      ;; When vertico-posframe-mode is disabled, hide posframe and let
-      ;; the contents of minibuffer show again, this approach let
-      ;; vertico-posframe works with vertico multiform toggle.
-      (set-window-vscroll (active-minibuffer-window) 0)
-      (posframe-hide vertico-posframe--buffer)))))
+  (if vertico-posframe-mode
+      (unless (posframe-workable-p)
+        (funcall (buffer-local-value 'vertico-posframe-fallback-mode (current-buffer)) 1))
+    (if (posframe-workable-p)
+        (vertico-posframe--multiform-function)
+      (funcall (buffer-local-value 'vertico-posframe-fallback-mode (current-buffer)) -1))))
+
+(defun vertico-posframe--multiform-function ()
+  "Function work with `'vertico-multiform-mode'.
+When `vertico-posframe-mode' is disabled, hide posframe and let
+the contents of minibuffer show again, this approach let
+vertico-posframe works with vertico multiform toggle."
+  (set-window-vscroll (active-minibuffer-window) 0)
+  (posframe-hide vertico-posframe--buffer))
 
 ;; Support vertico-multiform
 (cl-pushnew 'vertico-posframe-mode vertico-multiform--display-modes)
