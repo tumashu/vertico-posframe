@@ -202,9 +202,18 @@ vertico-posframe works with vertico multiform toggle."
   (posframe-hide vertico-posframe--buffer))
 
 ;; Support vertico-multiform
-(cl-pushnew 'vertico-posframe-mode vertico-multiform--display-modes)
-(vertico-multiform--define-display-toggle posframe)
-(define-key vertico-multiform-map (kbd "M-P") #'vertico-multiform-posframe)
+(let* ((name 'posframe)
+       (key (kbd "M-p"))
+       (mode (intern (format "vertico-%s-mode" name)))
+       (toggle (intern (format "vertico-multiform-%s" name))))
+  (defalias toggle
+    (lambda ()
+      (interactive)
+      (vertico-multiform-vertical mode))
+    (format "Toggle the %s display." name))
+  (push mode vertico-multiform--display-modes)
+  (put toggle 'completion-predicate #'vertico--command-p)
+  (define-key vertico-multiform-map key #'vertico-multiform-posframe))
 
 (cl-defmethod vertico--setup
   :after (&context ((vertico-posframe-mode-workable-p) (eql t)))
