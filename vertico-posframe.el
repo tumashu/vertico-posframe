@@ -145,6 +145,10 @@ a rule can be a regexp or a function.
 minibuffer will not be hided by minibuffer-cover."
   :type '(repeat (choice string function)))
 
+(defcustom vertico-posframe-vertico-multiform-key "M-p"
+  "The vertico-posframe keybinding used in vertico-multiform."
+  :type '(choice (const nil) string))
+
 (defface vertico-posframe
   '((t (:inherit default)))
   "Face used by the vertico-posframe."
@@ -202,18 +206,23 @@ vertico-posframe works with vertico multiform toggle."
   (posframe-hide vertico-posframe--buffer))
 
 ;; Support vertico-multiform
-(let* ((name 'posframe)
-       (key (kbd "M-p"))
-       (mode (intern (format "vertico-%s-mode" name)))
-       (toggle (intern (format "vertico-multiform-%s" name))))
-  (defalias toggle
-    (lambda ()
-      (interactive)
-      (vertico-multiform-vertical mode))
-    (format "Toggle the %s display." name))
-  (push mode vertico-multiform--display-modes)
-  (put toggle 'completion-predicate #'vertico--command-p)
-  (define-key vertico-multiform-map key #'vertico-multiform-posframe))
+(defun vertico-posframe-vertico-multiform-setup ()
+  (let* ((name 'posframe)
+         (mode (intern (format "vertico-%s-mode" name)))
+         (toggle (intern (format "vertico-multiform-%s" name))))
+    (defalias toggle
+      (lambda ()
+        (interactive)
+        (vertico-multiform-vertical mode))
+      (format "Toggle the %s display." name))
+    (push mode vertico-multiform--display-modes)
+    (put toggle 'completion-predicate #'vertico--command-p)
+    (when vertico-posframe-vertico-multiform-key
+      (define-key vertico-multiform-map
+                  (kbd vertico-posframe-vertico-multiform-key)
+                  #'vertico-multiform-posframe))))
+
+(vertico-posframe-vertico-multiform-setup)
 
 (cl-defmethod vertico--setup
   :after (&context ((vertico-posframe-mode-workable-p) (eql t)))
