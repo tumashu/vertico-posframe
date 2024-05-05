@@ -232,7 +232,8 @@ vertico-posframe works with vertico multiform toggle."
 (defun vertico-posframe-mode-workable-p ()
   "Test `vertico-posframe-mode' is actived and can work or not."
   (and vertico-posframe-mode
-       (posframe-workable-p)))
+       (posframe-workable-p)
+       (not (vertico-posframe--minibuffer-only-p))))
 
 (defun vertico-posframe--minibuffer-exit-hook ()
   "The function used by `minibuffer-exit-hook'."
@@ -240,6 +241,12 @@ vertico-posframe works with vertico multiform toggle."
   ;; 1.0, so I think setting it to 1.0 here is safe :-).
   (setq-local max-mini-window-height 1.0)
   (posframe-hide vertico-posframe--buffer))
+
+(defun vertico-posframe--minibuffer-only-p ()
+  "Check if the selected frame is a minibuffer-only frame."
+  (let ((current-frame (selected-frame)))
+    (and (framep current-frame)
+         (eq (frame-parameter current-frame 'minibuffer) 'only))))
 
 (cl-defmethod vertico--resize-window
   (_height &context ((vertico-posframe-mode-workable-p) (eql t))))
