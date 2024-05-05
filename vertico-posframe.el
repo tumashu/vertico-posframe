@@ -264,9 +264,11 @@ vertico-posframe works with vertico multiform toggle."
         (minibuffer-window (active-minibuffer-window)))
     (setq-local max-mini-window-height 1)
     ;; Let minibuffer-window's height = 1
-    (window-resize minibuffer-window
-                   (- (window-pixel-height minibuffer-window))
-                   nil nil 'pixelwise)
+    (condition-case err
+	(window-resize minibuffer-window
+                       (- (window-pixel-height minibuffer-window))
+                       nil nil 'pixelwise)
+      (error (warn "vertico-posframe.el: %s Aborting..." (cdr err))))
     ;; Hide the context showed in minibuffer-window.
     (set-window-vscroll minibuffer-window 100)
     (when show-minibuffer-p
