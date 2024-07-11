@@ -130,7 +130,7 @@ When 0, no border is showed."
 
 (defcustom vertico-posframe-parameters nil
   "The frame parameters used by vertico-posframe."
-  :type 'string)
+  :type '(alist :key-type symbol :value-type sexp))
 
 (defcustom vertico-posframe-show-minibuffer-rules
   (list "^eval-*")
