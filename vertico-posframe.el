@@ -180,6 +180,7 @@ minibuffer will not be hided by minibuffer-cover."
   :group 'vertico-posframe)
 
 (defvar vertico-posframe--buffer nil)
+(defvar vertico-posframe--use-auto-hscroll-mode-p nil)
 
 ;; Fix warn
 (defvar exwm--connection)
@@ -245,8 +246,10 @@ vertico-posframe works with vertico multiform toggle."
   (posframe-funcall
    vertico-posframe--buffer
    (lambda ()
-     (setf (window-hscroll) 0)))
-  (kill-local-variable 'auto-hscroll-mode)
+     (setf (window-hscroll) 0)
+     (when vertico-posframe--use-auto-hscroll-mode-p
+       (kill-local-variable 'auto-hscroll-mode)
+       (setq-local vertico-posframe--use-auto-hscroll-mode-p nil))))
   (posframe-hide vertico-posframe--buffer))
 
 (cl-defmethod vertico--resize-window
@@ -299,7 +302,9 @@ vertico-posframe works with vertico multiform toggle."
   "`posframe-show' of vertico-posframe."
   (with-selected-window (vertico-posframe-last-window) ;Some posframe poshandlers need infos of last-window.
     (with-current-buffer buffer
-      (setq-local auto-hscroll-mode 'current-line))
+      (unless (local-variable-p 'auto-hscroll-mode)
+        (setq-local auto-hscroll-mode 'current-line)
+        (setq-local vertico-posframe--use-auto-hscroll-mode-p t)))
     (apply #'posframe-show
            buffer
            :cursor 'box
