@@ -239,6 +239,14 @@ vertico-posframe works with vertico multiform toggle."
   ;; `vertico--resize-window' have set `max-mini-window-height' to
   ;; 1.0, so I think setting it to 1.0 here is safe :-).
   (setq-local max-mini-window-height 1.0)
+  ;; Before hide vertico-posframe, we should clean window hscroll
+  ;; effect, to handle long path issue:
+  ;; https://github.com/tumashu/vertico-posframe/issues/37
+  (posframe-funcall
+   vertico-posframe--buffer
+   (lambda ()
+     (setf (window-hscroll) 0)))
+  (kill-local-variable 'auto-hscroll-mode)
   (posframe-hide vertico-posframe--buffer))
 
 (cl-defmethod vertico--resize-window
@@ -290,6 +298,8 @@ vertico-posframe works with vertico multiform toggle."
 (defun vertico-posframe--show (buffer window-point)
   "`posframe-show' of vertico-posframe."
   (with-selected-window (vertico-posframe-last-window) ;Some posframe poshandlers need infos of last-window.
+    (with-current-buffer buffer
+      (setq-local auto-hscroll-mode 'current-line))
     (apply #'posframe-show
            buffer
            :cursor 'box
