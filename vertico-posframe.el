@@ -308,6 +308,7 @@ vertico-posframe works with vertico multiform toggle."
     (apply #'posframe-show
            buffer
            :cursor 'box
+           :tty-non-selected-cursor t
            :window-point window-point
            :font (buffer-local-value 'vertico-posframe-font buffer)
            ;; Variable settings in `vertico-multiform-commands' will
