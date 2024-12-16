@@ -252,6 +252,9 @@ vertico-posframe works with vertico multiform toggle."
        (setq-local vertico-posframe--use-auto-hscroll-mode-p nil))))
   (posframe-hide vertico-posframe--buffer))
 
+;; vertico--resize-window has been renamed to vertico--resize in commit:
+;; https://github.com/minad/vertico/commit/5c4a2cbe9916c2761bfb56ac129eb4b8f9210b22
+;; We handle both here.
 (when (functionp 'vertico--resize-window)
   (cl-defmethod vertico--resize-window
     (_height &context ((vertico-posframe-mode-workable-p) (eql t)))))
