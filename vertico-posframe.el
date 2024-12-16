@@ -181,6 +181,8 @@ minibuffer will not be hided by minibuffer-cover."
 
 (defvar vertico-posframe--buffer nil)
 (defvar vertico-posframe--use-auto-hscroll-mode-p nil)
+(defvar vertico-posframe--use-vertico--resize-p nil)
+
 
 ;; Fix warn
 (defvar exwm--connection)
@@ -250,7 +252,14 @@ vertico-posframe works with vertico multiform toggle."
      (when vertico-posframe--use-auto-hscroll-mode-p
        (kill-local-variable 'auto-hscroll-mode)
        (setq-local vertico-posframe--use-auto-hscroll-mode-p nil))))
-  (posframe-hide vertico-posframe--buffer))
+  (posframe-hide vertico-posframe--buffer)
+  ;; Handle vertico--resize-window rename to vertico--resize, will
+  ;; remove in future.
+  (when (and (functionp 'vertico--resize)
+             (not vertico-posframe--use-vertico--resize-p))
+    (cl-defmethod vertico--resize
+      (&context ((vertico-posframe-mode-workable-p) (eql t))))
+    (setq vertico-posframe--use-vertico--resize-p t)))
 
 ;; vertico--resize-window has been renamed to vertico--resize in commit:
 ;; https://github.com/minad/vertico/commit/5c4a2cbe9916c2761bfb56ac129eb4b8f9210b22
