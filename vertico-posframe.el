@@ -252,8 +252,13 @@ vertico-posframe works with vertico multiform toggle."
        (setq-local vertico-posframe--use-auto-hscroll-mode-p nil))))
   (posframe-hide vertico-posframe--buffer))
 
-(cl-defmethod vertico--resize
-  (&context ((vertico-posframe-mode-workable-p) (eql t))))
+(when (functionp 'vertico--resize-window)
+  (cl-defmethod vertico--resize-window
+    (_height &context ((vertico-posframe-mode-workable-p) (eql t)))))
+
+(when (functionp 'vertico--resize)
+  (cl-defmethod vertico--resize
+    (&context ((vertico-posframe-mode-workable-p) (eql t)))))
 
 (cl-defmethod vertico--display-candidates
   :after (_candidates &context ((vertico-posframe-mode-workable-p) (eql t)))
