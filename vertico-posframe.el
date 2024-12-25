@@ -145,7 +145,7 @@ a rule can be a regexp or a function.
 minibuffer will not be hided by minibuffer-cover."
   :type '(repeat (choice string function)))
 
-(defcustom vertico-posframe-vertico-multiform-key "M-p"
+(defcustom vertico-posframe-vertico-multiform-key "M-P"
   "The vertico-posframe keybinding used in vertico-multiform."
   :type '(choice (const nil) string))
 
