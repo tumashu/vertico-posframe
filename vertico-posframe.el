@@ -5,9 +5,9 @@
 ;; Author: Feng Shu <tumashu@163.com>
 ;; Maintainer: Feng Shu <tumashu@163.com>
 ;; URL: https://github.com/tumashu/vertico-posframe
-;; Version: 0.7.8
+;; Version: 0.8.0
 ;; Keywords: abbrev, convenience, matching, vertico
-;; Package-Requires: ((emacs "26.0") (posframe "1.4.0") (vertico "1.1"))
+;; Package-Requires: ((emacs "26.0") (posframe "1.4.0") (vertico "1.10"))
 
 ;; This file is part of GNU Emacs.
 
@@ -181,8 +181,6 @@ minibuffer will not be hided by minibuffer-cover."
 
 (defvar vertico-posframe--buffer nil)
 (defvar vertico-posframe--use-auto-hscroll-mode-p nil)
-(defvar vertico-posframe--use-vertico--resize-p nil)
-
 
 ;; Fix warn
 (defvar exwm--connection)
@@ -252,25 +250,10 @@ vertico-posframe works with vertico multiform toggle."
      (when vertico-posframe--use-auto-hscroll-mode-p
        (kill-local-variable 'auto-hscroll-mode)
        (setq-local vertico-posframe--use-auto-hscroll-mode-p nil))))
-  (posframe-hide vertico-posframe--buffer)
-  ;; Handle vertico--resize-window rename to vertico--resize, will
-  ;; remove in future.
-  (when (and (functionp 'vertico--resize)
-             (not vertico-posframe--use-vertico--resize-p))
-    (cl-defmethod vertico--resize
-      (&context ((vertico-posframe-mode-workable-p) (eql t))))
-    (setq vertico-posframe--use-vertico--resize-p t)))
+  (posframe-hide vertico-posframe--buffer))
 
-;; vertico--resize-window has been renamed to vertico--resize in commit:
-;; https://github.com/minad/vertico/commit/5c4a2cbe9916c2761bfb56ac129eb4b8f9210b22
-;; We handle both here.
-(when (functionp 'vertico--resize-window)
-  (cl-defmethod vertico--resize-window
-    (_height &context ((vertico-posframe-mode-workable-p) (eql t)))))
-
-(when (functionp 'vertico--resize)
-  (cl-defmethod vertico--resize
-    (&context ((vertico-posframe-mode-workable-p) (eql t)))))
+(cl-defmethod vertico--resize
+  (&context ((vertico-posframe-mode-workable-p) (eql t))))
 
 (cl-defmethod vertico--display-candidates
   :after (_candidates &context ((vertico-posframe-mode-workable-p) (eql t)))
