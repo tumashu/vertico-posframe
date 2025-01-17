@@ -307,7 +307,7 @@ vertico-posframe works with vertico multiform toggle."
         (setq-local vertico-posframe--use-auto-hscroll-mode-p t)))
     (apply #'posframe-show
            buffer
-           :cursor 'box
+           :cursor cursor-type
            :tty-non-selected-cursor t
            :window-point window-point
            :font (buffer-local-value 'vertico-posframe-font buffer)
