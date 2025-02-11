@@ -307,7 +307,13 @@ vertico-posframe works with vertico multiform toggle."
         (setq-local vertico-posframe--use-auto-hscroll-mode-p t)))
     (apply #'posframe-show
            buffer
-           :cursor cursor-type
+           :cursor (if (eq cursor-type t)
+                       ;; For vertico-posframe special, when
+                       ;; cursor-type is t, hollow box will be showed,
+                       ;; which is not expected by user, so we should
+                       ;; force show it with box.
+                       'box
+                     cursor-type)
            :tty-non-selected-cursor t
            :window-point window-point
            :font (buffer-local-value 'vertico-posframe-font buffer)
