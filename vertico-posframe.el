@@ -7,7 +7,7 @@
 ;; URL: https://github.com/tumashu/vertico-posframe
 ;; Version: 0.8.0
 ;; Keywords: abbrev, convenience, matching, vertico
-;; Package-Requires: ((emacs "26.0") (posframe "1.4.0") (vertico "1.10"))
+;; Package-Requires: ((emacs "26.0") (posframe "1.4.0") (vertico "2.5"))
 
 ;; This file is part of GNU Emacs.
 
@@ -252,8 +252,8 @@ vertico-posframe works with vertico multiform toggle."
        (setq-local vertico-posframe--use-auto-hscroll-mode-p nil))))
   (posframe-hide vertico-posframe--buffer))
 
-(cl-defmethod vertico--resize
-  (&context ((vertico-posframe-mode-workable-p) (eql t))))
+(cl-defmethod vertico--resize-window
+  (_height &context ((vertico-posframe-mode-workable-p) (eql t))))
 
 (cl-defmethod vertico--display-candidates
   :after (_candidates &context ((vertico-posframe-mode-workable-p) (eql t)))
