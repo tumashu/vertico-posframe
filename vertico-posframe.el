@@ -212,9 +212,7 @@ vertico-posframe works with vertico multiform toggle."
          (mode (intern (format "vertico-%s-mode" name)))
          (toggle (intern (format "vertico-multiform-%s" name))))
     (defalias toggle
-      (lambda ()
-        (interactive)
-        (vertico-multiform-vertical mode))
+      (lambda () (interactive) (vertico-multiform--toggle-mode mode))
       (format "Toggle the %s display." name))
     (push mode vertico-multiform--display-modes)
     (put toggle 'completion-predicate #'vertico--command-p)
