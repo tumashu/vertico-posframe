@@ -154,6 +154,14 @@ minibuffer will not be hided by minibuffer-cover."
   "Face used by the vertico-posframe."
   :group 'vertico-posframe)
 
+(defface vertico-posframe-highlight
+  '((t (:background "blue")))
+  "Face used by the vertico-posframe to highlight a region.
+
+This should differ from `vertico-current' so that the two highlight
+colors can be distinguished."
+  :group 'vertico-posframe)
+
 (defface vertico-posframe-border
   '((t (:inherit default :background "gray50")))
   "Face used by the vertico-posframe's border when minibuffer-depth = 1."
@@ -182,6 +190,13 @@ minibuffer will not be hided by minibuffer-cover."
 (defvar vertico-posframe--buffer nil)
 (defvar vertico-posframe--use-auto-hscroll-mode-p nil)
 
+(defvar vertico-posframe--region-highlight nil
+  "Current region highlight overlay to respect `transient-mark-mode'.
+
+This should be handled by `vertico-posframe--update-region-highlight'
+and `vertico-posframe--reset-region-highlight'.  Do not manipulate it
+directly.")
+
 ;; Fix warn
 (defvar exwm--connection)
 (defvar exwm-workspace--workareas)
@@ -192,8 +207,22 @@ minibuffer will not be hided by minibuffer-cover."
   "Display Vertico in posframe instead of the minibuffer."
   :global t
   (if vertico-posframe-mode
-      (unless (posframe-workable-p)
-        (funcall (buffer-local-value 'vertico-posframe-fallback-mode (current-buffer)) 1))
+      (progn
+        (unless (posframe-workable-p)
+          (funcall (buffer-local-value 'vertico-posframe-fallback-mode (current-buffer)) 1))
+        ;; FIXME: Ideally, `posframe' would integrate better with
+        ;; `transient-mark-mode'.  In the meantime, the region
+        ;; highlight overlay in the `posframe' buffer needs to be
+        ;; reset whenever the mark changes.
+        ;; Because `activate-mark-hook' is currently not triggered
+        ;; while the region is active, `advice-add' is used to catch
+        ;; both `activate-mark' and `deactivate-mark', even though
+        ;; `deactivate-mark-hook' works as expected.  This may no
+        ;; longer be the case if upstream changes this behavior.
+        (advice-add 'activate-mark :before #'vertico-posframe--reset-region-highlight)
+        (advice-add 'deactivate-mark :before #'vertico-posframe--reset-region-highlight))
+    (advice-remove 'activate-mark #'vertico-posframe--reset-region-highlight)
+    (advice-remove 'deactivate-mark #'vertico-posframe--reset-region-highlight)
     (if (posframe-workable-p)
         (vertico-posframe--multiform-function)
       (funcall (buffer-local-value 'vertico-posframe-fallback-mode (current-buffer)) -1))))
@@ -334,7 +363,44 @@ vertico-posframe works with vertico multiform toggle."
            :refposhandler (buffer-local-value 'vertico-posframe-refposhandler buffer)
            :hidehandler #'vertico-posframe-hidehandler
            :lines-truncate (buffer-local-value 'vertico-posframe-truncate-lines buffer)
-           (funcall (buffer-local-value 'vertico-posframe-size-function buffer) buffer))))
+           (funcall (buffer-local-value 'vertico-posframe-size-function buffer) buffer)))
+  (vertico-posframe--update-region-highlight buffer))
+
+(defun vertico-posframe--update-region-highlight (buffer)
+  "Mirror the minibuffer's region highlight in BUFFER.
+
+When the minibuffer's BUFFER is displayed in a `posframe', its region
+highlight, set by `redisplay--update-region-highlight', isn't applied
+into the `posframe'.
+
+The `internal-region-overlay' window's parameter is ignored.  So that
+`transient-mark-mode' doesn't work in a `posframe'.
+
+As a workaround, mirror `internal-region-overlay' as a BUFFER overlay
+directly, rather than relying to it as a window's parameter."
+  ;; reset the current region highlight overlay
+  (vertico-posframe--reset-region-highlight)
+  ;; mirror the minibuffer's region highlight as a buffer overlay
+  (let ((ol (window-parameter (minibuffer-window) 'internal-region-overlay)))
+    (when (and ol (overlay-buffer ol))
+      (setq vertico-posframe--region-highlight
+            (make-overlay (overlay-start ol) (overlay-end ol) buffer))
+      (overlay-put
+       vertico-posframe--region-highlight 'face 'vertico-posframe-highlight))))
+
+(defun vertico-posframe--reset-region-highlight (&rest _args)
+  "Reset the current region highlight overlay.
+
+Reset the `vertico-posframe--region-highlight' buffer overlay.
+
+This should also be called before `activate-mark' and `deactivate-mark',
+to visually reset the mark."
+  (when (overlayp vertico-posframe--region-highlight)
+    (delete-overlay vertico-posframe--region-highlight)
+    ;; FIXME: Needed after `activate-mark' to visually reset the mark,
+    ;; but not by `deactivate-mark' (possibly because internally calls
+    ;; `redisplay--update-region-highlight').
+    (redisplay)))
 
 (defun vertico-posframe-last-window ()
   "Get the last actived window before active minibuffer."
